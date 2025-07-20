@@ -96,7 +96,7 @@ published: false
 [ECEF]: https://en.wikipedia.org/wiki/Earth-centered,_Earth-fixed_coordinate_system
 [ECI]: https://en.wikipedia.org/wiki/Earth-centered_inertial
 
-![](https://storage.googleapis.com/zenn-user-upload/5a2a433c71da-20250706.png =400x)
+![](/images/lie-group-for-robotics/image1.png =400x)
 *このロボットの位置と姿勢はどのように表現すると良いだろうか*
 
 ローカル座標がグローバル座標と一致していたとして、そこからロボットがx-y座標で$\begin{bmatrix}a\\b\end{bmatrix}$移動して、その後に$\theta$だけ反時計回りに回転したと仮定する。このロボットの（元の位置から見たときの）位置・姿勢を何かしらの方法で表現したい。なお、位置・姿勢（＝回転）はあわせてポーズ(pose)という用語で表現される。この言葉が一般的によく登場することから、以後は「ポーズ」を用いて記述する。
