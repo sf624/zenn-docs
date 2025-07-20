@@ -115,7 +115,7 @@ $$
 
 たとえば、ここから更に下図のように**相対的に**ロボットが$\Delta \bm{p} = \begin{bmatrix} \Delta a \\ \Delta b \\ \Delta \theta \end{bmatrix}$に相当する運動をしたと仮定する。この場合、結果としての（グローバル座標から見た）ポーズはどうなるだろうか。
 
-![](https://storage.googleapis.com/zenn-user-upload/c52e00979ac1-20250706.png =500x)
+![](/images/lie-group-for-robotics/image2.png =500x)
 *ロボットがold local frameから相対的に見て、(Δa、Δb、ΔΘ）に相当する運動をした*
 
 答えは、
@@ -133,7 +133,7 @@ $$
 ここで発想を逆にする。任意の**静止している点**のグローバル座標系での座標を$\bm{x}_{global} \in \mathbb{R}^2$とし、移動後のロボットから見た**同じ点**のローカル座標系での座標を$\bm{x}_{local} \in \mathbb{R}^2$と置く。この両者にはどのような等式が成り立つだろうか。
 
 
-![](https://storage.googleapis.com/zenn-user-upload/db0b6f5b4e5b-20250706.png =500x)
+![](/images/lie-group-for-robotics/image3.png =500x)
 *図ではx_local, y_localと成分表記しているが、これをまとめて本文では$\bm{x}_{local}$としていることに注意*
 
 これは、よく慣れ親しんだ内容である。先ほどの三つのポーズを表すパラメータ$(a, b, \theta)$から回転行列$R_2(\theta)=\begin{bmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{bmatrix}$と平行移動ベクトル$\,t=\begin{bmatrix}a\\b\end{bmatrix}$を用意すると、以下の等式が成立する。
@@ -306,11 +306,10 @@ $$
 
 例によって、簡単に図示できることから二次元のロボットの運動（ポーズを$\mathrm{SE}(2)$）を扱うが、どのリー群でも同じ議論が成り立つ。次のような問題を考える。
 
-ロボットが時刻$\tau=0$でポーズ$T_1 \in \mathrm{SE}(2)$であった状態から、時刻$\tau=1$でポーズ$T_2 \in \mathrm{SE}(2)$に移動したとしよう。このとき、時刻$0 \le \tau \le 1$におけるポーズ$\mathrm{interp}(T_1, T_2; \tau) \in \mathrm{SE}(2)$を推定したい。
+ロボットが時刻$\tau=0$でポーズ$T_1 \in \mathrm{SE}(2)$であった状態から、時刻$\tau=1$でポーズ$T_2 \in \mathrm{SE}(2)$に移動したとしよう。このとき、時刻$0 \le \tau \le 1$におけるポーズ$\mathrm{interp}(T_1, T_2; \tau) \in \mathrm{SE}(2)$を推定したい。つまり、補間計算をしたいということだ。($\mathrm{interp}$はinterpolate(補間)の略)
 
-つまり、補間処理をしたいということだ。($\mathrm{interp}$はinterpolate(補間)の略)
-
-**ここに図を追加する。**
+![](/images/lie-group-for-robotics/interpolate.png =400x)
+*青点線は並進成分と回転成分を分離して補間する$\mathrm{T}(2)\times\mathrm{SO}(2)$補間、赤点線は並進成分と回転成分を同時に補間する$\mathrm{SE}(2)$補間を表す。*
 
 こういった問題でまず解法として思いつくのは、位置$\bm{t}$と姿勢$R(\theta)$を分離してそれぞれで線形補間してしまうことである。つまり、
 
@@ -336,18 +335,15 @@ R(\theta_2) & \bm{t}_2 \\
 \right)
 $$
 
-こういった補間が尤もらしいケースもあるかもしれないが[^drone]、これは$\mathrm{SE}(2)$としての補間ではない。こういった問題では多くの場合、移動体の進行方向とローカル座標とには大きな関連がある。例えば、自動車であればタイヤの方向に強く進行方向が依存している。
+こういった補間が尤もらしいケースもあるかもしれないが[^drone]、これは上図の青点線に示すように$\mathrm{SE}(2)$としての補間ではない。こういった問題では多くの場合、移動体の進行方向とローカル座標とには大きな関連がある。例えば、自動車であればタイヤの方向に強く進行方向が依存している。
 
 [^drone]: たとえばマルチコプターはヨーイング運動をしながらも、それとは無関係に一定速度ベクトルで移動するというような挙動も可能である。
 
-このことを考慮し、今回は**微小時間あたりのその時点でのローカル座標から見たポーズ変化が一定**であるという制約を課すことにしよう。自動車であれば、ハンドルの角度を一定にしながら一定速度で走行するというような状況[^slip]を想定しているということだ。
+このことを考慮し、今回は**微小時間あたりのその時点でのローカル座標から見たポーズ変化が一定**であるという制約を課すことにしよう。自動車であれば、ハンドルの角度を一定にしながら一定速度で走行するというような状況[^slip]を想定しているということだ。これは上図の赤点線で示すような軌跡を描き、これが$\mathrm{SE}(2)$としての補間となる。この補間の仕方から想像できるように、$SE(2)$補間では位置の補間結果は円弧を形成する。
 
 [^slip]: その間のスリップの発生量も一定であると仮定する
 
-これは図にして表すと下記のようになる。
-
-
-大きな数$n$を用意して時間$1/n$あたり$\delta T$の微小なポーズ変化を起こしながら、$T_1$から$T_2$に至ったとしよう。
+$SE(2)$補間を考えるにあたり、大きな数$n$を用意して時間$1/n$あたり$\delta T$の微小なポーズ変化を起こしながら、$T_1$から$T_2$に至ったとしよう。
 
 その場合、
 
@@ -361,7 +357,7 @@ $$
 \operatorname{interp}(T_1, T_2; \tau) = T_1 (\delta T)^{\tau n}
 $$
 
-の$n\rightarrow\infty$の極限において補間を求めることができる。行列の「和の極限」であれば簡単であるが、行列の「積の極限」の極限となると一見すると難しい問題に見えてくる。ただ、実数においては総積を総和の形に変換する方法を学んだことがあるはずだ。
+の$n\rightarrow\infty$の極限において$SE(2)$補間を求めることができる。行列の「和の極限」であれば簡単であるが、行列の「積の極限」の極限となると一見すると難しい問題に見えてくる。ただ、以下に示すように実数においては総積を総和の形に変換する方法を学んだことがあるはずだ。
 
 ### 1次元の指数・対数写像による乗法的プロセスの補間
 
@@ -404,6 +400,9 @@ $$
 $$
 
 ただし途中で、$x$が微小なときに成立する近似式$\log (1+x) \approx x$を用いた。
+
+![](/images/lie-group-for-robotics/log-space.png =500x)
+*乗法的プロセスは、対数空間を考えると加法的プロセスと見なすことができる*
 
 このように乗法的なプロセスにおいては、対数写像を取った**対数空間において加法的なプロセスと見ることができる**。従って、対数空間における差にあたる$\xi$に線形補間を施した結果に指数写像を取り、それに初期値$a$を掛けることで$z$の補間が得られる。
 
@@ -451,8 +450,12 @@ $$
 
 $[\bm{\xi}]_\wedge = \log (T_1^{-1} T_2)$であることから、$[\bm{\xi}]_\wedge$はリー群の対数写像として得られる行列になっており、これを「リー代数」と呼ぶ。つまり**リー群とリー代数は指数写像・対数写像によって互いに相互変換できる関係にある**。また、表記法については$\mathrm{SE}(2)$に対応するリー代数は$\mathfrak{se}(2)$というように、小文字のドイツ文字（フラクトゥール体）を用いる。
 
-また、1次元の場合と同様の議論で、$[\bm{\xi}]_\wedge$はリー群の対数空間における速度ベクトルとして捉えることができ、指数空間（リー群）においては$\dfrac{dT}{d\tau} = T [\bm{\xi}]_\wedge$が成立する。では、この速度変化を**相対的に**ポーズ$T$から見たらどうなるだろうか？これは、左から$T^{-1}$を掛ける操作をすればよいのであった。すると、$T^{-1} \dfrac{dT}{d\tau} = [\bm{\xi}]_\wedge$となり一定となる。つまり、**単位時間あたりの相対変化を表現するリー群に対数写像を取って得られるリー代数は、その瞬間のポーズ$T$から相対的に見た（＝ローカル座標から見た）$T$の速度そのもの**ということができる。特に$T=I$（ローカル座標=グローバル座標）である場合は、$T$のグローバル座標での速度である。このリー代数の捉え方は非常に重要であり、ぜひ頭に入れておきたい。特に後に$\mathrm{SO}(3)$のリー代数を見たときに、それが（ローカルフレームから見た）角速度ベクトルそのものであることが分かる。
+また、1次元の場合と同様の議論で、$[\bm{\xi}]_\wedge$はリー群の対数空間における速度ベクトルとして捉えることができ、指数空間（リー群）においては$\dfrac{dT}{d\tau} = T [\bm{\xi}]_\wedge$が成立する。では、この速度変化を**相対的に**ポーズ$T$から見たらどうなるだろうか？これは、左から$T^{-1}$を掛ける操作をすればよいのであった。すると、$T^{-1} \dfrac{dT}{d\tau} = [\bm{\xi}]_\wedge$となり一定となる。つまり、**単位時間あたりの相対変化を表現するリー群に対数写像を取って得られるリー代数は、その瞬間のポーズ$T$から相対的に見た（＝ローカル座標から見た）$T$の速度そのもの**ということができる。
 
+特に$T=I$（ローカル座標=グローバル座標）である場合は、$T$のグローバル座標での速度である。このリー代数の捉え方は非常に重要であり、ぜひ頭に入れておきたい。これらの関係を幾何的に図で表すと、以下のようにリー群$\mathrm{G}$の単位元($I$)における接空間（多様体における接平面）がリー代数$\mathfrak{g}$となっていて、これらが対数・指数写像によって相互変換できる関係にある。
+
+![](/images/lie-group-for-robotics/image4.png =300x)
+*例：$\mathrm{SE}(3)$と$\mathfrak{se}(3)$は、どちらも4次の実正方行列全体の空間$M_4(\mathbb{R})$に埋め込まれた多様体（超曲面）として見ることができる。そして、$\mathfrak{se}(3)$は$\mathrm{SE}(3)$の単位元($I$)における接空間を構成する。*
 
 ## リー代数の指数写像
 
@@ -497,7 +500,7 @@ $$
 これを下記のように分解する。
 
 $$
-[\theta]_\wedge = \theta [1]_\wedge = \begin{bmatrix}0&-1\\1&0\end{bmatrix}
+[\theta]_\wedge = \theta [1]_\wedge = \theta\begin{bmatrix}0&-1\\1&0\end{bmatrix}
 $$
 
 このとき、$[1]_\wedge^2 = -I_2$が成立する。この性質と$\sin$と$\cos$のべき級数展開を用いて、実際に指数写像を計算してみると、
@@ -576,14 +579,7 @@ $$
 を得て、リー群$\mathrm{SE}(2)$となることが確認できる。ただし、
 
 $$
-\begin{align*}
-V(\theta)
-&= I + \sum_{k=1}^{\infty}\dfrac{1}{(k+1)!} \exp[\theta]_\wedge^k
-\\
-&= \int_0^1\exp([\theta]_xt)dt
-\\
-&= \dfrac{1}{\theta}\begin{bmatrix}\sin\theta&-(1-\cos\theta)\\1-\cos\theta&\sin\theta\end{bmatrix}
-\end{align*}
+V(\theta) = \dfrac{1}{\theta}\begin{bmatrix}\sin\theta&-(1-\cos\theta)\\1-\cos\theta&\sin\theta\end{bmatrix}
 $$
 
 であり[^SE2-left-jacobian]、指数写像を取るときに、リー代数の並進成分($\bm{\rho}$)をリー群の並進成分($\bm{t}$)に変換する係数となっている。数値計算において$\theta$が微小な場合は、三角関数のテイラー展開により例えば$\theta$の1次の項で打ち切って
@@ -591,7 +587,7 @@ $$
 [^SE2-left-jacobian]: この$V(\theta)$は、本稿では詳細には触れないが、$SO(2)$の左ヤコビアン$J_l(\theta)$と一致することから、これを「左ヤコビアン」と呼ぶ文献もある。ただし、$SE(2)$としての左ヤコビアンは別に定義されることから、混同しないように注意されたい。
 
 $$
-J(\theta) \approx \begin{bmatrix}1&-\theta/2\\\theta/2&1\end{bmatrix} \quad (\theta \approx 0)
+V(\theta) \approx \begin{bmatrix}1&-\theta/2\\\theta/2&1\end{bmatrix} \quad (\theta \approx 0)
 $$
 
 と近似することで0除算を回避できる。
@@ -658,15 +654,15 @@ $$
 \exp [\bm{\xi}]_\wedge = \begin{bmatrix}\exp[\bm{\theta}]_\wedge&V(\bm{\theta})\bm{\rho}\\0&1\end{bmatrix} \in \mathrm{SE}(3)
 $$
 
-である[^SE3-left-jacobian]。ただし、
-
-[^SE3-left-jacobian]: この$V(\bm{\theta})$は、本稿では詳細には触れないが、$SO(3)$の左ヤコビアン$J_l(\bm{\theta})$と一致することから、これを「左ヤコビアン」と呼ぶ文献もある。ただし、$SE(3)$としての左ヤコビアンは別に定義されることから、混同しないように注意されたい。
+である。ただし、
 
 $$
 V(\bm{\theta}) = I_3 + \dfrac{1-\cos\theta}{\theta^2} [\bm{\theta}]_\wedge + \dfrac{\theta - \sin\theta}{\theta^3} [\bm{\theta}]_\wedge^2
 $$
 
-である。数値計算において$\theta$が微小な場合は、三角関数のテイラー展開により例えば$\theta$の1次の項で打ち切って
+である[^SE3-left-jacobian]。数値計算において$\theta$が微小な場合は、三角関数のテイラー展開により例えば$\theta$の1次の項で打ち切って
+
+[^SE3-left-jacobian]: この$V(\bm{\theta})$は、本稿では詳細には触れないが、$SO(3)$の左ヤコビアン$J_l(\bm{\theta})$と一致することから、これを「左ヤコビアン」と呼ぶ文献もある。ただし、$SE(3)$としての左ヤコビアンは別に定義されることから、混同しないように注意されたい。
 
 $$
 V(\theta) \approx I_3 + \dfrac{1}{2}[\bm{\theta}]_\wedge
@@ -682,22 +678,27 @@ $\mathfrak{se}(2)$のときと同様に、$\bm{\theta}$は（相対的な）角�
 
 ここまでで分かったリー群とリー代数の具体的な形を以下にまとめる。
 
-$M(N, \mathbb{R})$とは、N次実正方行列を指す。注意してほしいのは、対数・指数写像は乗法（行列積）を演算として採用したリー群（$\mathrm{SO}(2),\mathrm{SE}(2),\mathrm{SO}(3),\mathrm{SE}(3)$）とそのリー代数に対して定義されるのであって、加法を演算として採用したリー群（$\mathrm{T}(2),\mathrm{T}(3)$）では扱わない。
+$M_N(\mathbb{R})$とは、N次実正方行列を指す。注意してほしいのは、対数・指数写像は乗法（行列積）を演算として採用したリー群（$\mathrm{SO}(2),\mathrm{SE}(2),\mathrm{SO}(3),\mathrm{SE}(3)$）とそのリー代数に対して定義されるのであって、加法を演算として採用したリー群（$\mathrm{T}(2),\mathrm{T}(3)$）では扱わない。
 
 | リー群 | 対応するリー代数 |
 | - | - |
 | $\mathrm{T}(2) = \mathbb{R}^2$ (ただし群の演算としては加法を用いる) | $\mathfrak{t}(2) = \mathbb{R}^2$ |
-| $\mathrm{SO}(2) = \left \{ R = M(2, \mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(2) = \left \{ [\theta]_\wedge = M(2, \mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
+| $\mathrm{SO}(2) = \left \{ R = M_2(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(2) = \left \{ [\theta]_\wedge = M_2(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
 | $\mathrm{SE}(2) = \left \{ \begin{bmatrix}R_2&t_2\\0&1\end{bmatrix} \| R_2 \in \mathrm{SO}(2), t \in \mathrm{T}(2) \right \}$ | $\mathfrak{se}(2) = \left \{ \begin{bmatrix}[\theta]_\wedge&\rho\\0&0\end{bmatrix} \| [\theta]_\wedge \in \mathfrak{so}(2), \rho \in \mathrm{T}(2) \right \}$ |
 | $\mathrm{T}(3) = \mathbb{R}^3$ (ただし群の演算としては加法を用いる) | $\mathfrak{t}(3) = \mathbb{R}^3$ |
-| $\mathrm{SO}(3) = \left \{ R = M(3, \mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(3) = \left \{ [\theta]_\wedge = M(3, \mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
+| $\mathrm{SO}(3) = \left \{ R = M_3(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(3) = \left \{ [\theta]_\wedge = M_3(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
 | $\mathrm{SE}(3) = \left \{ \begin{bmatrix}R_3&t_3\\0&1\end{bmatrix} \| R_3 \in \mathrm{SO}(3), t \in \mathrm{T}(3) \right \}$ | $\mathfrak{se}(3) = \left \{ \begin{bmatrix}[\theta]_\wedge&\rho\\0&0\end{bmatrix} \| [\theta]_\wedge \in \mathfrak{so}(3), \rho \in \mathrm{T}(3) \right \}$ |
 
 ### SE(2)の対数・指数写像による補間
 
 さて、ようやく道具は揃った。実際に、$\mathrm{SE}(2)$による補間を行ってみよう。
 
-時刻$\tau = 0$で$\begin{bmatrix}x\\y\\\theta\end{bmatrix}=\begin{bmatrix}1\\0\\\pi/2\end{bmatrix}$、時刻$\tau = 1$で$\begin{bmatrix}x\\y\\\theta\end{bmatrix}=\begin{bmatrix}0\\1\\\pi\end{bmatrix}$と動いたときのロボットについて、$0<\tau<1$での$\mathrm{SE}(2)$補間を求めたい。リー群の補間は以下の式で求められるのであった。
+時刻$\tau = 0$で$\begin{bmatrix}x\\y\\\theta\end{bmatrix}=\begin{bmatrix}1\\0\\\pi/2\end{bmatrix}$、時刻$\tau = 1$で$\begin{bmatrix}x\\y\\\theta\end{bmatrix}=\begin{bmatrix}0\\1\\\pi\end{bmatrix}$と動いたときのロボットについて、$0<\tau<1$での$\mathrm{SE}(2)$補間を求めたい。先ほどの説明から想像されるように、この補間結果は単位円上に来ると予想される。
+
+![](/images/lie-group-for-robotics/interpolate2.png =400x)
+*$mathrm{SE}(2)$補間であれば、補間結果は単位円上に来るはずである。*
+
+リー群の補間は以下の式で求められるのであった。
 
 $$
 T(\tau) = \operatorname{interp}(T_1, T_2; \tau) = T_1 \exp \left(\tau \log (T_1^{-1} T_2)\right) \\
