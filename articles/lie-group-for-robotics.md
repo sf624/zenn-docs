@@ -773,6 +773,8 @@ $$
 
 ## ベクトル空間としてのリー代数
 
+※記号の使用方法などに関しては文献によって多少の違いがあり、ここではJoan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の表記方法に倣う。
+
 非線形数理最適化や非線形確率推定の分野では、ベクトル値関数の微分計算が重要になることが多い。
 
 ニュートン法であれば、
@@ -907,9 +909,7 @@ $$
 
 ### SE(3)における3次元点群マッチングによるポーズ推定
 
-こちらはscomup氏の記事[^scomup]の内容をベースに解説する。
-
-[^scomup]: https://qiita.com/scomup/items/a9c09d57101583c58619
+※scomup氏の『[ロボット技術者向け リー群の速習(4) リー群を用いた最適化](https://qiita.com/scomup/items/a9c09d57101583c58619)』の内容をベースに解説する。
 
 異なる位置で観測された点群$\{\bm{a}_i\}$と$\{\bm{b}_i\}$が与えられ、添え字$i$が同一のものが対応していると仮定するとき、$\{\bm{a}_i\}$を最もよく$\{\bm{b}_i\}$に近づけられるような座標変換$T$を考えたい。コスト関数として例えば以下のように座標変換後のそれぞれの対応する点の距離の二乗和を定義し、これを最小化するような$T_{opt}$が最善の座標変換だとし、これを求めることにする。
 
@@ -926,7 +926,7 @@ $$
 まず、元々のガウス・ニュートン法について振り返ると、$n$個のベクトル値関数$\bm{f}_i$の総二乗和の最小化
 
 $$
-\argmin_{\bm{x}} \| \bm{f}_i(\bm{x}) \|^2
+\argmin_{\bm{x}} \sum_{i=1}^n \| \bm{f}_i(\bm{x}) \|^2
 $$
 
 という問題に対して、
@@ -1018,7 +1018,7 @@ $$
 
 ### SE(2)における誤差状態拡張カルマンフィルタを用いた位置姿勢推定
 
-以上で学んだ知見を活かして、以下のような問題を解こう。以降の図示のしやすさやヤコビアンの計算の簡便さから$\mathrm{SE}(2)$を題材にしているが、$\mathrm{SE}(3)$にも同様の流れで適用可能である。
+※Joan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の"V. LANDMARK-BASED LOCALIZATION AND MAPPING"の内容をベースに解説する。
 
 二次元上を運動するロボットの各時刻$i$でのポーズ$T_i \in \mathrm{SE}(2)$を求めたい。ロボットは、各時刻で相対的に時刻$\Delta\tau$あたり$\bm{u}\triangleq \Delta \tau(\theta_i, \bm{v}_i)^T$で動いていることを搭載したセンサから検出できるが（$\theta$は角速度、$\bm{v}$は並進速度である）、その計測値には正規分布に従った$\bm{w} \sim \mathcal{N}(0, Q)$のノイズが乗っているものとする。また、ロボットは位置$\bm{b}_k \in \mathbb{R}^2$が既知のビーコンからの相対位置をセンサから$\bm{z}_k \in \mathbb{R}^2$として時々取得できて、その計測値には$\bm{n}\sim\mathcal{N}(0,R)$の誤差が乗るものとする。
 
@@ -1128,7 +1128,7 @@ $$
 
 ##### ヤコビ行列FとGの閉形式
 
-実際にヤコビ行列を求める場合は、リー群が関わる基本的な微分に関する知識体系とそれを元にした連鎖律を応用することで求めることができ詳細については[^lie-cheat-sheet][^micro-lie-theory]を参照してほしい。本稿では結論だけ示す。
+実際にヤコビ行列を求める場合は、リー群が関わる基本的な微分に関する知識体系とそれを元にした連鎖律を応用することで求めることができ、詳細については[^lie-cheat-sheet][^micro-lie-theory]を参照してほしい。本稿では結論だけ示す。
 
 [^lie-cheat-sheet]: https://raw.githubusercontent.com/artivis/manif/devel/paper/Lie_theory_cheat_sheet.pdf
 [^micro-lie-theory]: https://arxiv.org/abs/1812.01537
@@ -1241,7 +1241,7 @@ $$
 \delta z_k = \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \delta \xi + \delta \bm{n}
 $$
 
-となり、この表現において拡張カルマンフィルタを同様の手続きを踏むことが可能となり、
+となり、この表現において拡張カルマンフィルタと同様の手続きを踏むことが可能となり、
 
 $$
 S = R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \right)
@@ -1391,8 +1391,6 @@ class ESEKF():
 非常にきれいに纏められており、必読級である。
 
 https://arxiv.org/pdf/1812.01537
-
-
 
 https://qiita.com/scomup/items/d82b35aeb1ecabd75e60
 
