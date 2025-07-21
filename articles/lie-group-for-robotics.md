@@ -1301,102 +1301,19 @@ $$
 
 #### 実装例
 
-以上の検討結果をもとに、状態推定をするPythonプログラムは下記のようになる。他の手法と比較できるように、普通の拡張カルマンフィルタ(EKF)やアンセンテッドカルマンフィルタ(UKF)の場合も合わせて示している。
+以上の検討結果をもとに、状態推定をするPythonプログラムは下記のようになる。`class ESEKF(Estimator)`が誤差状態拡張カルマンフィルタの実装部分である。他の手法と比較できるように、普通の拡張カルマンフィルタ(EKF)やアンセンテッドカルマンフィルタ(UKF)の場合も合わせて実装し、結果をプロットした。
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/lie-group-for-robotics/se2_kalman_filter.ipynb
 
-:::details ESEKFの実装部分のみを抜粋
-```py
-import numpy as np
+黒色が真値、オレンジ色が観測更新を行わないただのオドメトリ、緑色が通常のEKF、青色が通常のUKF、そして紫色がリー代数空間によるESEKFの結果である。点群は、それぞれの2σ範囲に含まれる状態量が一様分布だと仮定してサンプリングしたもので、確率分布の広がりを可視化するために表示している。
 
-# wedge演算子
-def skew(theta: float):
-    return np.array([[0, -theta],
-                      [theta, 0]])
+ESEKFについては、実行直後に最も違いが顕著に出ており、リー代数上で正規分布を仮定しているため、その指数写像の結果はリー代数が微小でない場合は下図のようにドーナツやバナナのような形状になる場合がある。
 
-# 左ヤコビアン
-def V(theta: float):
-    if np.abs(theta) > 0.001:
-        return np.sin(theta) / theta * np.identity(2) + (1 - np.cos(theta)) / theta * skew(1)
-    else:
-        return np.identity(2) + theta / 2 * skew(1)
+![](/images/lie-group-for-robotics/esekf_1.png =500x)
 
-# Exp演算子
-def Exp(tau):
-    return np.block([[rotation(tau[2, 0]), V(tau[2, 0]) @ tau[0:2, [0]]],
-                      [np.zeros((1, 2))   , 1]])
+実行を続けていけば、最終的にはどの手法でも似たような分布形状に収まっていくことが確認できる。今回の手法においては、EKFとESEKFが比較的似たような挙動を示していた。
 
-# Log演算子
-def Log(M):
-    theta = np.arctan2(M[1, 0], M[0, 0])
-    return np.block([[np.linalg.inv(V(theta)) @ M[0:2, [2]]],
-                     [theta]])
-
-# 随伴行列Ad
-def Ad(M):
-    return np.block([[M[0:2, 0:2],      -skew(1) @ M[0:2, [2]]],
-                      [np.zeros((1, 2)), 1]])
-
-# 右ヤコビアンJ_r
-def Jr(tau):
-    rho1 = tau[0, 0]
-    rho2 = tau[1, 0]
-    theta = tau[2, 0]
-    s = np.sin(theta)
-    c = np.cos(theta)
-    if np.abs(theta) > 0.001:
-        return np.array([[s/theta, (1-c)/theta, ((theta - s)*rho1 - (1 - c) * rho2)/theta**2],
-                          [(c-1)/theta, s/theta, (    (1 - c)*rho1 + (theta - s)*rho2)/theta**2],
-                          [0          ,       0,   1]])
-    else:
-        return np.array([[1,        theta/2, theta/6*rho1 - 1/2*rho2],
-                          [-theta/2, 1,       1/2*rho1 + theta/6*rho1],
-                          [0,        0,       1]])
-
-# ⊕演算子
-def plus(X, u):
-    return X @ Exp(u)
-
-# 誤差状態拡張カルマンフィルタ推定器
-class ESEKF():
-    def __init__(self):
-        self.xs = x_initial
-        self.P = P_initial
-        self.F = np.linalg.inv(Ad(Exp(nominal_u)))
-        self.G = Jr(nominal_u)
-
-    def X(self):
-        return np.block([[rotation(self.xs[2, -1]), self.xs[0:2, [-1]]],
-                          [np.zeros((1, 2))        , 1]])
-    
-    def get_state_vector(self, X):
-        return np.block([[X[0:2, [2]]],
-                          [np.arctan2(X[1,0], X[0,0])]])
-    
-    def H(self, X, beacon):
-        return - np.block([[np.identity(2), X[0:2, 0:2].T @ skew(1) @ (beacon - X[0:2, [2]])]])
-    
-    # 時間更新則
-    def propagate(self):
-        X = plus(self.X(), nominal_u)
-        self.xs = np.hstack([self.xs, self.get_state_vector(X)])
-        self.P = self.F @ self.P @ self.F.T + self.G @ Q @ self.G.T
-
-    # 観測更新則
-    def observe(self, beacon, z):
-        e = z - observation_model(self.xs[:, [-1]], beacon)
-        H = self.H(self.X(), beacon)
-        S = H @ self.P @ H.T + R
-        K = self.P @ H.T @ np.linalg.inv(S)
-        delta_tau = K @ e
-        X = plus(self.X(), delta_tau)
-        self.xs = np.hstack([self.xs, self.get_state_vector(X)])
-        self.P = (np.identity(3) - K @ H) @ self.P
-        
-    def get_estimates(self):
-        return self.xs
-```
-:::
+![](/images/lie-group-for-robotics/esekf_2.png =500x)
 
 ## 参考文献
 
