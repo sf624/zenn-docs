@@ -1303,7 +1303,7 @@ $$
 
 以上の検討結果をもとに、状態推定をするPythonプログラムは下記のようになる。他の手法と比較できるように、普通の拡張カルマンフィルタ(EKF)やアンセンテッドカルマンフィルタ(UKF)の場合も合わせて示している。
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/se2_kalman_filter.ipynb
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/lie-group-for-robotics/se2_kalman_filter.ipynb
 
 :::details ESEKFの実装部分のみを抜粋
 ```py
