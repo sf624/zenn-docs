@@ -757,7 +757,7 @@ $$
 
 ### ローカル座標の速度・加速度によるSE(2)の更新
 
-ロボットが、初期ポーズが$T_0$で、その後$\Delta \tau_i (i = 1\sim n)$の時間間隔でローカル座標系で速度$\bm{u}_i = [\omega_i, \bm{v}_i]^T$で走行した場合の最終的なポーズ$T$を求めたいとする。これは、非常に簡単であり、
+ロボットが、初期ポーズが$T_0$で、その後$\Delta \tau_i (i = 1\sim n)$の時間間隔でローカル座標系で速度$\bm{u}_i = [\bm{v}_i, \omega_i]^T$で走行した場合の最終的なポーズ$T \in \mathrm{SE}(2)$を求めたいとする。これは、非常に簡単であり、
 
 $$
 T = T_0 \exp([\bm{u}_1]_\wedge \tau_1) \exp([\bm{u}_2]_\wedge \tau_2) \cdots \exp([\bm{u}_n]_\wedge \tau_n)
@@ -773,7 +773,9 @@ $$
 
 ## リー群の微分
 
-※記号の使用方法などに関しては文献によって多少の違いがあり、ここではJoan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の表記方法に倣う。
+:::message
+記号の使用方法などに関しては文献によって多少の違いがあり、ここではJoan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の表記方法に倣う。
+:::
 
 非線形数理最適化や非線形確率推定の分野では、ベクトル値関数の微分計算が重要になることが多い。
 
@@ -909,7 +911,9 @@ $$
 
 ### SE(3)における3次元点群マッチングによるポーズ推定
 
-※scomup氏の『[ロボット技術者向け リー群の速習(4) リー群を用いた最適化](https://qiita.com/scomup/items/a9c09d57101583c58619)』の内容をベースに解説する。
+:::message
+scomup氏の『[ロボット技術者向け リー群の速習(4) リー群を用いた最適化](https://qiita.com/scomup/items/a9c09d57101583c58619)』の内容をベースに解説する。
+:::
 
 異なる位置で観測された点群$\{\bm{a}_i\}$と$\{\bm{b}_i\}$が与えられ、添え字$i$が同一のものが対応していると仮定するとき、$\{\bm{a}_i\}$を最もよく$\{\bm{b}_i\}$に近づけられるような座標変換$T$を考えたい。コスト関数として例えば以下のように座標変換後のそれぞれの対応する点の距離の二乗和を定義し、これを最小化するような$T_{opt}$が最善の座標変換だとし、これを求めることにする。
 
@@ -1014,11 +1018,15 @@ $$
 
 #### 実装例
 
-実装例に関しては、scomup氏の[Pythonプログラム](https://github.com/scomup/MathematicalRobotics/blob/main/mathR/optimization/demo_3d.py)を参照頂きたい。
+実装例に関しては、scomup氏の実装を参照頂きたい。
+
+https://github.com/scomup/MathematicalRobotics/blob/main/mathR/optimization/demo_3d.py
 
 ### SE(2)における誤差状態拡張カルマンフィルタを用いた位置姿勢推定
 
-※Joan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の"V. LANDMARK-BASED LOCALIZATION AND MAPPING"の内容をベースに解説する。
+:::message
+Joan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の"V. LANDMARK-BASED LOCALIZATION AND MAPPING"の内容をベースに解説する。
+:::
 
 二次元上を運動するロボットの各時刻$i$でのポーズ$T_i \in \mathrm{SE}(2)$を求めたい。ロボットは、各時刻で相対的に時刻$\Delta\tau$あたり$\bm{u}\triangleq \Delta \tau(\theta_i, \bm{v}_i)^T$で動いていることを搭載したセンサから検出できるが（$\theta$は角速度、$\bm{v}$は並進速度である）、その計測値には正規分布に従った$\bm{w} \sim \mathcal{N}(0, Q)$のノイズが乗っているものとする。また、ロボットは位置$\bm{b}_k \in \mathbb{R}^2$が既知のビーコンからの相対位置をセンサから$\bm{z}_k \in \mathbb{R}^2$として時々取得できて、その計測値には$\bm{n}\sim\mathcal{N}(0,R)$の誤差が乗るものとする。
 
@@ -1293,8 +1301,11 @@ $$
 
 #### 実装例
 
-以上の検討結果をもとに、状態推定をするPythonプログラムは下記のようになる。プログラム全体については、[ここ](https://github.com/sf624/zenn-docs/blob/main/sample_codes/se2_kalman_filter.ipynb)を参照。他の手法と比較できるように、普通の拡張カルマンフィルタ(EKF)やアンセンテッドカルマンフィルタ(UKF)の場合も合わせて示している。
+以上の検討結果をもとに、状態推定をするPythonプログラムは下記のようになる。他の手法と比較できるように、普通の拡張カルマンフィルタ(EKF)やアンセンテッドカルマンフィルタ(UKF)の場合も合わせて示している。
 
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/se2_kalman_filter.ipynb
+
+:::details ESEKFの実装部分のみを抜粋
 ```py
 import numpy as np
 
@@ -1385,27 +1396,22 @@ class ESEKF():
     def get_estimates(self):
         return self.xs
 ```
+:::
 
 ## 参考文献
 
-非常にきれいに纏められており、必読級である。
+1. Joan Solà氏らによってロボティクスに適用されるリー群の理論がコンパクトに体系化されており、非常に参考になる。
+    - Joan Solà, Jeremie Deray, Dinesh Atchuthan, 2021, "[A micro Lie theory for state estimation in robotics](https://arxiv.org/pdf/1812.01537)"
+    - J. Deray and J. Solà, 2024, "[Lie theory cheat sheet](https://github.com/artivis/manif/blob/devel/paper/Lie_theory_cheat_sheet.pdf)"
+    - Joan Solà, 2021, "[Lie theory for the roboticist](https://www.youtube.com/watch?v=gy8U7S4LWzs)"
+    - Joan Solà, 2020, "[Lie thery for the Roboticist](https://www.youtube.com/watch?v=QR1p0Rabuww)" 
+    - Joan Solà, 2017, "[Quaternion kinematics for the error-state Kalman filter](https://arxiv.org/abs/1711.02508)" 
+      - 上記は以下のように邦訳が公開されている。
+        https://www.flight.t.u-tokyo.ac.jp/?p=800
 
-https://arxiv.org/pdf/1812.01537
+2. scomup氏の記事も分かりやすく、参考にさせていただいた。
+    - scomup (Liu Yang), 2024,『[ロボット技術者向け リー群の速習(2) リー群・リー代数を使った3次元剛体変換](https://qiita.com/scomup/items/d82b35aeb1ecabd75e60)』
 
-https://qiita.com/scomup/items/d82b35aeb1ecabd75e60
+3. 鏡慎吾、2023年、『[ロボット工学のためのリー群・リー代数入門](https://www.jstage.jst.go.jp/article/jrsj/41/6/41_41_511/_pdf)』
 
-http://ethaneade.com/lie.pdf
-
-https://naist.repo.nii.ac.jp/record/8177/files/R012616.pdf
-
-https://www.jstage.jst.go.jp/article/jrsj/41/6/41_41_511/_pdf
-
-https://www.youtube.com/watch?v=gy8U7S4LWzs&t=12s
-
-https://github.com/artivis/manif/blob/devel/paper/Lie_theory_cheat_sheet.pdf
-
-https://www.youtube.com/watch?v=QR1p0Rabuww
-
-https://www.jstage.jst.go.jp/article/jrsj/41/6/41_41_511/_pdf
-
-https://www.flight.t.u-tokyo.ac.jp/wp-content/uploads/2022/04/%E8%AA%A4%E5%B7%AE%E7%8A%B6%E6%85%8B%E3%82%AB%E3%83%AB%E3%83%9E%E3%83%B3%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E6%A7%8B%E7%AF%89%E3%81%AB%E5%90%91%E3%81%91%E3%81%9F%E3%82%AF%E3%82%A9%E3%83%BC%E3%82%BF%E3%83%8B%E3%82%AA%E3%83%B3%E3%82%AD%E3%83%8D%E3%83%9E%E3%83%86%E3%82%A3%E3%82%AF%E3%82%B9.pdf
+4. 瀬戸将志、2016年、『[拡張現実感のためのSE3補間を用いたローリングシャッターカメラの位置・姿勢推定](https://naist.repo.nii.ac.jp/record/8177/files/R012616.pdf)』
