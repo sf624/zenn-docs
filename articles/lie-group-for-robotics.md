@@ -1307,11 +1307,14 @@ https://github.com/sf624/zenn-docs/blob/main/sample_codes/lie-group-for-robotics
 
 黒色が真値、オレンジ色が観測更新を行わないただのオドメトリ、緑色が通常のEKF、青色が通常のUKF、そして紫色がリー代数空間によるESEKFの結果である。点群は、それぞれの2σ範囲に含まれる状態量が一様分布だと仮定してサンプリングしたもので、確率分布の広がりを可視化するために表示している。
 
-ESEKFについては、実行直後に最も違いが顕著に出ており、リー代数上で正規分布を仮定しているため、その指数写像の結果はリー代数が微小でない場合は下図のようにドーナツやバナナのような形状になる場合がある。
+ESEKFについては、実行直後のまだ不確かさが大きなときに最も違いが顕著に出ており、リー代数上で正規分布を仮定しているため、その指数写像の結果はリー代数が微小でない場合は下図のようにドーナツやバナナのような形状になる。この方がより実際の確率分布を適切に表現できると考えられる[^banana]。
+
+[^banana]: https://www.roboticsproceedings.org/rss08/p34.pdf
+
 
 ![](/images/lie-group-for-robotics/esekf_1.png =500x)
 
-実行を続けていけば、最終的にはどの手法でも似たような分布形状に収まっていくことが確認できる。今回の手法においては、EKFとESEKFが比較的似たような挙動を示していた。
+今回のパラメータ設定においては、このような強い非線形性は薄まっていくため、最終的にはどの手法でも下図のように似たような楕円上の確率分布に収まっていくことが確認できる。
 
 ![](/images/lie-group-for-robotics/esekf_2.png =500x)
 
@@ -1332,3 +1335,5 @@ ESEKFについては、実行直後に最も違いが顕著に出ており、リ
 3. 鏡慎吾、2023年、『[ロボット工学のためのリー群・リー代数入門](https://www.jstage.jst.go.jp/article/jrsj/41/6/41_41_511/_pdf)』
 
 4. 瀬戸将志、2016年、『[拡張現実感のためのSE3補間を用いたローリングシャッターカメラの位置・姿勢推定](https://naist.repo.nii.ac.jp/record/8177/files/R012616.pdf)』
+
+5. Andrew W. Long, Kevin C. Wolfe, Michael J. Mashner, Gregory S. Chirikjian, 2013, "[The Banana Distribution Is Gaussian: A Localization Study with Exponential Coordinates](https://www.roboticsproceedings.org/rss08/p34.pdf)"
