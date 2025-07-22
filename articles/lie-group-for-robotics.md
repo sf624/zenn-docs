@@ -1176,7 +1176,7 @@ J_r(\bm{\tau}) &\triangleq \dfrac{\partial \operatorname{Exp}(\bm{\tau})}{\parti
 \end{align*}
 $$
 
-である。（注意：$\mathrm{SE}(3)$の場合はより複雑であり、詳しくは[^joan-sola]のAPPENDIX Dに当たりたい。）
+である。（注意：$\mathrm{SE}(3)$の場合はより複雑であり、詳しくは[^micro-lie-theory]のAPPENDIX Dに当たりたい。）
 
 数値計算において特に$\theta$が微小な場合は、テイラー展開を用いて例えば$\theta$を1次の項で打ち切って
 
