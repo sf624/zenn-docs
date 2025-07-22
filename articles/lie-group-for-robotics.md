@@ -1,9 +1,15 @@
 ---
 title: "[ロボティクス] リー群の基礎から最適化まで"
 emoji: "💃"
-type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["リー群", "最適化", "カルマンフィルタ", "robotics", "python"]
+type: "tech"
+topics:
+  - "python"
+  - "最適化"
+  - "robotics"
+  - "カルマンフィルタ"
+  - "リー群"
 published: true
+published_at: "2025-07-23 01:28"
 ---
 
 ## この記事を読むと…
