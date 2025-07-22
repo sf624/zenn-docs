@@ -716,9 +716,9 @@ $$
 
 $$
 \begin{align*}
-\exp [\bm{\xi}]_\wedge &= \begin{bmatrix}R(\theta)&J(\theta)\bm{\rho}\\0&1\end{bmatrix} \in \mathrm{SE}(2) \quad ([\bm{\xi}]_\wedge \in \mathfrak{se}(2))
+\exp [\bm{\xi}]_\wedge &= \begin{bmatrix}R(\theta)&V(\theta)\bm{\rho}\\0&1\end{bmatrix} \in \mathrm{SE}(2) \quad ([\bm{\xi}]_\wedge \in \mathfrak{se}(2))
 \\
-J(\theta) &= \dfrac{1}{\theta}\begin{bmatrix}\sin\theta&-(1-\cos\theta)\\1-\cos\theta&\sin\theta\end{bmatrix}
+V(\theta) &= \dfrac{1}{\theta}\begin{bmatrix}\sin\theta&-(1-\cos\theta)\\1-\cos\theta&\sin\theta\end{bmatrix}
 \end{align*}
 $$
 
@@ -1305,18 +1305,19 @@ $$
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/lie-group-for-robotics/se2_kalman_filter.ipynb
 
-黒色が真値、オレンジ色が観測更新を行わないただのオドメトリ、緑色が通常のEKF、青色が通常のUKF、そして紫色がリー代数空間によるESEKFの結果である。点群は、それぞれの1σ範囲に含まれる状態量が一様分布だと仮定してサンプリングしたもので、確率分布の広がりを可視化するために表示している。
+下図に実行初期の状態を表示した。左図が軌跡全体、右図がその時刻の平均位置周りの拡大図である。黒色が真値、オレンジ色が観測更新を行わないただのオドメトリ、緑色が通常のEKF、青色が通常のUKF、そして紫色がリー代数空間によるESEKFの結果を示した。点群は、それぞれの1σ範囲に含まれる状態量が一様分布だと仮定してサンプリングしたもので、確率分布の広がりを可視化するために表示している。
 
-ESEKFについては、実行直後のまだ不確かさが大きなときに最も違いが顕著に出ており、リー代数上で正規分布を仮定しているため、その指数写像の結果はリー代数が微小でない場合は下図のようにバナナ状の分布になることがある。この方がより実際の確率分布を適切に表現できると考えられる[^banana]。
+ESEKFについては、実行直後のまだ不確かさが大きなときに最も違いが顕著に出ており、リー代数上で正規分布を仮定しているため、その指数写像の結果はリー代数が微小でない場合はこのようなバナナ状の分布になることがある。この方がより実際の確率分布を適切に表現できると考えられる[^banana]。
 
 [^banana]: https://www.roboticsproceedings.org/rss08/p34.pdf
 
-
 ![](/images/lie-group-for-robotics/esekf_1.png =500x)
+*リー代数空間での正規分布の誤差を仮定しているESEKF(紫色)については、xy座標に変換するとバナナ状の形状に確率分布が出てくる*
 
 今回のパラメータ設定においては、このような強い非線形性は薄まっていくため、最終的にはどの手法でも下図のように似たような楕円上の確率分布に収まっていくことが確認できる。
 
 ![](/images/lie-group-for-robotics/esekf_2.png =500x)
+*収束していくと、各手法のどれでも似たような楕円分布形状に落ち着いていく*
 
 ## 参考文献
 
