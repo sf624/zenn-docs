@@ -23,6 +23,7 @@ llvm-profdata-20 merge -sparse main.profraw -o main.profdata
 llvm-cov-20 show ./main -instr-profile=main.profdata \
     -Xdemangler=c++filt \
     -show-mcdc \
+    -show-mcdc-summary \
     -show-line-counts-or-regions \
     -show-branches=count \
     -format=html \
