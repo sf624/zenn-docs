@@ -15,7 +15,7 @@ published: false
 
 C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source-based"カバレッジと呼ばれる手法を提供している。gcovでは、カバレッジ計測用のコード（instrument）がコンパイルの最終段階で挿入されるため最適化などの影響を受けやすい。一方で、"source-based"カバレッジではその名の通り、ソースコードレベルでinstrumentが挿入されるため[ほぼ最適化の影響を受けない](https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#impact-of-llvm-optimizations-on-coverage-reports)高精度なカバレッジ測定が可能となっている。
 
-特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
+特に、LLVM 18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
 
 今回は、以下のClangの"source based code coverage"の公式レファレンスをもとに解説した。
 
@@ -114,21 +114,37 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 ## 測定対象のソースコード
 
-今回は、下記のようなソースコードのカバレッジ計測を行うものとする。`main.cpp`、`foo.hpp`、`bar.cpp`、`bar.hpp`の4つのファイルから構成されている。
+今回は、下記のようなソースコードのカバレッジ計測を行うものとする。`foo`、`bar`、`buz`、`qux`関数の実装は共通であるが次のような違いがある。
 
-- `bar`は普通の関数であり、MC/DCカバレッジが100%となるように複数回実行している。
+- `foo`は、branch coverageが100%となるが、MC/DCは100%とならないような実行となっている。
 
-- `foo`はテンプレート関数となっており、テンプレートパラメータを区別しなければ`bar`と同様の条件分岐網羅となるように実行しているが、実際には`int`と`long`の二つの型で実体化されていて、それぞれの実体化についてはMC/DCカバレッジが100%とならないようになっている。
+- `bar`は、MC/DCが100%となるような実行を行っている。（MC/DCが100%であれば、Branch coverageも100%となる）
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/main.cpp
+- `buz`はテンプレート関数となっており、テンプレートパラメータを区別しなければ`bar`と同様の条件分岐網羅となるように実行しているが、実際には`int`と`long`の二つの型で実体化されており、それぞれを区別するとMC/DCカバレッジが100%とならないようになっている。
+
+- `qux`もテンプレート関数となっており、`int`による特殊化はMC/DCが100%となるが、`long`による特殊化はMC/DCが0%となる。
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.hpp
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.cpp
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.hpp
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.cpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.hpp
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/buz.hpp
 
-カバレッジ結果は、`coverage.sh`で取得できる。詳細について以下に説明する。
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/qux.hpp
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/main.cpp
+
+:::message
+Branch coverageは、各condition(leaf-level expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各conditionが単独の`true`と`false`の違いで結果のdecisionの`true`と`false`を変化させたような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
+
+https://llvm.org/devmtg/2022-11/slides/TechTalk4-MCDC-EnablingSafetyCriticalCodeCoverage.pdf
+:::
+
+カバレッジ結果は、`coverage.sh`で取得できる。詳細については、以下に説明する。
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/coverage.sh
 
@@ -138,7 +154,7 @@ https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-cov
 
 ```sh
 # インストゥルメントコード付きでコンパイル
-clang++-20 main.cpp bar.cpp -o main \
+clang++-20 foo.cpp bar.cpp main.cpp -o main \
     -fprofile-instr-generate \
     -fcoverage-mapping \
     -fcoverage-mcdc
@@ -219,181 +235,379 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 その他、使用可能なオプションについては[こちら](https://llvm.org/docs/CommandGuide/llvm-cov.html#id5)を参照。
 :::
 
-実行結果は以下のようになる。見て分かるように、
+実行結果は以下のようになる。この結果から分かるように、
 
-- 非テンプレート関数`bar`は、MC/DCカバレッジが100%となった。
-- テンプレート関数`foo`は、テンプレートパラメータごとのカバレッジ結果が集計されており、それぞれのMC/DCカバレッジは100%となっていない。
+- 非テンプレート関数`foo`は、branch coverageは100%であるものの、MC/DCは100%とならない。
+- 非テンプレート関数`bar`は、MC/DCが100%となる。
+- テンプレート関数`foo`は、テンプレートパラメータごとのカバレッジ結果が集計されており、それぞれのMC/DCは100%となっていない。
+- テンプレート関数`qux`は、`int`による特殊化についてはMC/DCが100%となる。
+- テンプレート関数の各行実行回数については、各特殊化別の実行回数とそれを合算したものの2種類が表示される。
 
 ```sh
-/path/to/sample_codes/clang-source-based-coverage/bar.cpp:
+/path/to/bar.cpp:
     1|       |#include "bar.hpp"
     2|       |
-    3|      3|void bar(const int x, const int y) {
-    4|      3|  if ((x > 0) && (y > 0)) {
-                               ^2
+    3|      4|void bar(bool a, bool b, bool c) {
+    4|      4|    if ((a && b) || c) {
+                            ^2    ^3
   ------------------
-  |  Branch (4:7): [True: 2, False: 1]
-  |  Branch (4:18): [True: 1, False: 1]
+  |  Branch (4:10): [True: 2, False: 2]
+  |  Branch (4:15): [True: 1, False: 1]
+  |  Branch (4:21): [True: 1, False: 2]
   ------------------
-  |---> MC/DC Decision Region (4:7) to (4:25)
+  |---> MC/DC Decision Region (4:9) to (4:22)
   |
-  |  Number of Conditions: 2
-  |     Condition C1 --> (4:7)
-  |     Condition C2 --> (4:18)
+  |  Number of Conditions: 3
+  |     Condition C1 --> (4:10)
+  |     Condition C2 --> (4:15)
+  |     Condition C3 --> (4:21)
   |
   |  Executed MC/DC Test Vectors:
   |
-  |     C1, C2    Result
-  |  1 { F,  -  = F      }
-  |  2 { T,  F  = F      }
-  |  3 { T,  T  = T      }
+  |     C1, C2, C3    Result
+  |  1 { F,  -,  F  = F      }
+  |  2 { T,  F,  F  = F      }
+  |  3 { F,  -,  T  = T      }
+  |  4 { T,  T,  -  = T      }
   |
-  |  C1-Pair: covered: (1,3)
-  |  C2-Pair: covered: (2,3)
+  |  C1-Pair: covered: (1,4)
+  |  C2-Pair: covered: (2,4)
+  |  C3-Pair: covered: (1,3)
   |  MC/DC Coverage for Decision: 100.00%
   |
   ------------------
-    5|      1|    volatile int i = 0;
-    6|      2|  } else {
-    7|      2|    volatile int i = 1;
-    8|      2|  }
-    9|      3|}
+    5|      2|        volatile int i = 0;
+    6|      2|    } else {
+    7|      2|        volatile int j = 1;
+    8|      2|    }
+    9|      4|}
 
-/path/to/sample_codes/clang-source-based-coverage/foo.hpp:
-    1|       |#pragma once
-    2|       |
-    3|       |template <typename T>
-    4|      3|void foo(const T x, const T y) {
-    5|      3|  if ((x > 0) && (y > 0)) {
-                               ^2
+/path/to/buz.hpp:
+    1|       |#ifndef BUZ_HPP_
+    2|       |#define BUZ_HPP_
+    3|       |
+    4|       |template <typename T>
+    5|      4|void buz(bool a, bool b, bool c) {
+    6|      4|    if ((a && b) || c) {
+                            ^2    ^3
   ------------------
-  |  Branch (5:7): [True: 2, False: 0]
-  |  Branch (5:18): [True: 1, False: 1]
-  |  Branch (5:7): [True: 0, False: 1]
-  |  Branch (5:18): [True: 0, False: 0]
+  |  Branch (6:10): [True: 1, False: 2]
+  |  Branch (6:15): [True: 1, False: 0]
+  |  Branch (6:21): [True: 1, False: 1]
+  |  Branch (6:10): [True: 1, False: 0]
+  |  Branch (6:15): [True: 0, False: 1]
+  |  Branch (6:21): [True: 0, False: 1]
   ------------------
-  |---> MC/DC Decision Region (5:7) to (5:25)
+  |---> MC/DC Decision Region (6:9) to (6:22)
   |
-  |  Number of Conditions: 2
-  |     Condition C1 --> (5:7)
-  |     Condition C2 --> (5:18)
+  |  Number of Conditions: 3
+  |     Condition C1 --> (6:10)
+  |     Condition C2 --> (6:15)
+  |     Condition C3 --> (6:21)
   |
   |  Executed MC/DC Test Vectors:
   |
-  |     C1, C2    Result
-  |  1 { T,  F  = F      }
-  |  2 { T,  T  = T      }
+  |     C1, C2, C3    Result
+  |  1 { F,  -,  F  = F      }
+  |  2 { F,  -,  T  = T      }
+  |  3 { T,  T,  -  = T      }
   |
-  |  C1-Pair: not covered
-  |  C2-Pair: covered: (1,2)
-  |  MC/DC Coverage for Decision: 50.00%
+  |  C1-Pair: covered: (1,3)
+  |  C2-Pair: not covered
+  |  C3-Pair: covered: (1,2)
+  |  MC/DC Coverage for Decision: 66.67%
   |
-  |---> MC/DC Decision Region (5:7) to (5:25)
+  |---> MC/DC Decision Region (6:9) to (6:22)
   |
-  |  Number of Conditions: 2
-  |     Condition C1 --> (5:7)
-  |     Condition C2 --> (5:18)
+  |  Number of Conditions: 3
+  |     Condition C1 --> (6:10)
+  |     Condition C2 --> (6:15)
+  |     Condition C3 --> (6:21)
   |
   |  Executed MC/DC Test Vectors:
   |
-  |     C1, C2    Result
-  |  1 { F,  -  = F      }
+  |     C1, C2, C3    Result
+  |  1 { T,  F,  F  = F      }
   |
   |  C1-Pair: not covered
   |  C2-Pair: not covered
+  |  C3-Pair: not covered
   |  MC/DC Coverage for Decision: 0.00%
   |
   ------------------
-    6|      1|    volatile int i = 0;
-    7|      2|  } else {
-    8|      2|    volatile int i = 1;
-    9|      2|  }
-   10|      3|}
+    7|      2|        volatile int i = 0;
+    8|      2|    } else {
+    9|      2|        volatile int j = 1;
+   10|      2|    }
+   11|      4|}
   ------------------
-  | void foo<int>(int, int):
-  |    4|      2|void foo(const T x, const T y) {
-  |    5|      2|  if ((x > 0) && (y > 0)) {
+  | void buz<int>(bool, bool, bool):
+  |    5|      3|void buz(bool a, bool b, bool c) {
+  |    6|      3|    if ((a && b) || c) {
+  |                            ^1    ^2
   |  ------------------
-  |  |  Branch (5:7): [True: 2, False: 0]
-  |  |  Branch (5:18): [True: 1, False: 1]
+  |  |  Branch (6:10): [True: 1, False: 2]
+  |  |  Branch (6:15): [True: 1, False: 0]
+  |  |  Branch (6:21): [True: 1, False: 1]
   |  ------------------
-  |  |---> MC/DC Decision Region (5:7) to (5:25)
+  |  |---> MC/DC Decision Region (6:9) to (6:22)
   |  |
-  |  |  Number of Conditions: 2
-  |  |     Condition C1 --> (5:7)
-  |  |     Condition C2 --> (5:18)
+  |  |  Number of Conditions: 3
+  |  |     Condition C1 --> (6:10)
+  |  |     Condition C2 --> (6:15)
+  |  |     Condition C3 --> (6:21)
   |  |
   |  |  Executed MC/DC Test Vectors:
   |  |
-  |  |     C1, C2    Result
-  |  |  1 { T,  F  = F      }
-  |  |  2 { T,  T  = T      }
+  |  |     C1, C2, C3    Result
+  |  |  1 { F,  -,  F  = F      }
+  |  |  2 { F,  -,  T  = T      }
+  |  |  3 { T,  T,  -  = T      }
   |  |
-  |  |  C1-Pair: not covered
-  |  |  C2-Pair: covered: (1,2)
-  |  |  MC/DC Coverage for Decision: 50.00%
+  |  |  C1-Pair: covered: (1,3)
+  |  |  C2-Pair: not covered
+  |  |  C3-Pair: covered: (1,2)
+  |  |  MC/DC Coverage for Decision: 66.67%
   |  |
   |  ------------------
-  |    6|      1|    volatile int i = 0;
-  |    7|      1|  } else {
-  |    8|      1|    volatile int i = 1;
-  |    9|      1|  }
-  |   10|      2|}
+  |    7|      2|        volatile int i = 0;
+  |    8|      2|    } else {
+  |    9|      1|        volatile int j = 1;
+  |   10|      1|    }
+  |   11|      3|}
   ------------------
-  | void foo<long>(long, long):
-  |    4|      1|void foo(const T x, const T y) {
-  |    5|      1|  if ((x > 0) && (y > 0)) {
-  |                               ^0
+  | void buz<long>(bool, bool, bool):
+  |    5|      1|void buz(bool a, bool b, bool c) {
+  |    6|      1|    if ((a && b) || c) {
   |  ------------------
-  |  |  Branch (5:7): [True: 0, False: 1]
-  |  |  Branch (5:18): [True: 0, False: 0]
+  |  |  Branch (6:10): [True: 1, False: 0]
+  |  |  Branch (6:15): [True: 0, False: 1]
+  |  |  Branch (6:21): [True: 0, False: 1]
   |  ------------------
-  |  |---> MC/DC Decision Region (5:7) to (5:25)
+  |  |---> MC/DC Decision Region (6:9) to (6:22)
   |  |
-  |  |  Number of Conditions: 2
-  |  |     Condition C1 --> (5:7)
-  |  |     Condition C2 --> (5:18)
+  |  |  Number of Conditions: 3
+  |  |     Condition C1 --> (6:10)
+  |  |     Condition C2 --> (6:15)
+  |  |     Condition C3 --> (6:21)
   |  |
   |  |  Executed MC/DC Test Vectors:
   |  |
-  |  |     C1, C2    Result
-  |  |  1 { F,  -  = F      }
+  |  |     C1, C2, C3    Result
+  |  |  1 { T,  F,  F  = F      }
   |  |
   |  |  C1-Pair: not covered
   |  |  C2-Pair: not covered
+  |  |  C3-Pair: not covered
   |  |  MC/DC Coverage for Decision: 0.00%
   |  |
   |  ------------------
-  |    6|      0|    volatile int i = 0;
-  |    7|      1|  } else {
-  |    8|      1|    volatile int i = 1;
-  |    9|      1|  }
-  |   10|      1|}
+  |    7|      0|        volatile int i = 0;
+  |    8|      1|    } else {
+  |    9|      1|        volatile int j = 1;
+  |   10|      1|    }
+  |   11|      1|}
   ------------------
+   12|       |
+   13|       |#endif // BUZ_HPP_
 
-/path/to/sample_codes/clang-source-based-coverage/main.cpp:
+/path/to/foo.cpp:
+    1|       |#include "foo.hpp"
+    2|       |
+    3|      3|void foo(bool a, bool b, bool c) {
+    4|      3|    if ((a && b) || c) {
+                            ^2    ^2
+  ------------------
+  |  Branch (4:10): [True: 2, False: 1]
+  |  Branch (4:15): [True: 1, False: 1]
+  |  Branch (4:21): [True: 1, False: 1]
+  ------------------
+  |---> MC/DC Decision Region (4:9) to (4:22)
+  |
+  |  Number of Conditions: 3
+  |     Condition C1 --> (4:10)
+  |     Condition C2 --> (4:15)
+  |     Condition C3 --> (4:21)
+  |
+  |  Executed MC/DC Test Vectors:
+  |
+  |     C1, C2, C3    Result
+  |  1 { F,  -,  F  = F      }
+  |  2 { T,  F,  T  = T      }
+  |  3 { T,  T,  -  = T      }
+  |
+  |  C1-Pair: covered: (1,3)
+  |  C2-Pair: not covered
+  |  C3-Pair: not covered
+  |  MC/DC Coverage for Decision: 33.33%
+  |
+  ------------------
+    5|      2|        volatile int i = 0;
+    6|      2|    } else {
+    7|      1|        volatile int j = 1;
+    8|      1|    }
+    9|      3|}
+
+/path/to/main.cpp:
     1|       |#include "foo.hpp"
     2|       |#include "bar.hpp"
+    3|       |#include "buz.hpp"
+    4|       |#include "qux.hpp"
+    5|       |
+    6|      1|int main() {
+    7|      1|  foo(false, false, false);
+    8|      1|  foo(true, true, false);
+    9|      1|  foo(true, false, true);
+   10|       |
+   11|      1|  bar(false, false, false);
+   12|      1|  bar(false, false, true);
+   13|      1|  bar(true, true, false);
+   14|      1|  bar(true, false, false);
+   15|       |
+   16|      1|  buz<int>(false, false, false);
+   17|      1|  buz<int>(false, false, true);
+   18|      1|  buz<int>(true, true, false);
+   19|      1|  buz<long>(true, false, false);
+   20|       |
+   21|      1|  qux<int>(false, false, false);
+   22|      1|  qux<int>(false, false, true);
+   23|      1|  qux<int>(true, true, false);
+   24|      1|  qux<int>(true, false, false);
+   25|      1|  qux<long>(true, false, false);
+   26|       |
+   27|      1|  return 0;
+   28|      1|}
+
+/path/to/qux.hpp:
+    1|       |#ifndef QUX_HPP_
+    2|       |#define QUX_HPP_
     3|       |
-    4|      1|int main() {
-    5|      1|  bar(2, 3);
-    6|      1|  bar(2, -5);
-    7|      1|  bar(-3, 3);
-    8|       |
-    9|      1|  foo<int>(2, 3);
-   10|      1|  foo<int>(2, -5);
-   11|      1|  foo<long>(-3, 3);
+    4|       |template <typename T>
+    5|      5|void qux(bool a, bool b, bool c) {
+    6|      5|    if ((a && b) || c) {
+                            ^3    ^4
+  ------------------
+  |  Branch (6:10): [True: 2, False: 2]
+  |  Branch (6:15): [True: 1, False: 1]
+  |  Branch (6:21): [True: 1, False: 2]
+  |  Branch (6:10): [True: 1, False: 0]
+  |  Branch (6:15): [True: 0, False: 1]
+  |  Branch (6:21): [True: 0, False: 1]
+  ------------------
+  |---> MC/DC Decision Region (6:9) to (6:22)
+  |
+  |  Number of Conditions: 3
+  |     Condition C1 --> (6:10)
+  |     Condition C2 --> (6:15)
+  |     Condition C3 --> (6:21)
+  |
+  |  Executed MC/DC Test Vectors:
+  |
+  |     C1, C2, C3    Result
+  |  1 { F,  -,  F  = F      }
+  |  2 { T,  F,  F  = F      }
+  |  3 { F,  -,  T  = T      }
+  |  4 { T,  T,  -  = T      }
+  |
+  |  C1-Pair: covered: (1,4)
+  |  C2-Pair: covered: (2,4)
+  |  C3-Pair: covered: (1,3)
+  |  MC/DC Coverage for Decision: 100.00%
+  |
+  |---> MC/DC Decision Region (6:9) to (6:22)
+  |
+  |  Number of Conditions: 3
+  |     Condition C1 --> (6:10)
+  |     Condition C2 --> (6:15)
+  |     Condition C3 --> (6:21)
+  |
+  |  Executed MC/DC Test Vectors:
+  |
+  |     C1, C2, C3    Result
+  |  1 { T,  F,  F  = F      }
+  |
+  |  C1-Pair: not covered
+  |  C2-Pair: not covered
+  |  C3-Pair: not covered
+  |  MC/DC Coverage for Decision: 0.00%
+  |
+  ------------------
+    7|      2|        volatile int i = 0;
+    8|      3|    } else {
+    9|      3|        volatile int j = 1;
+   10|      3|    }
+   11|      5|}
+  ------------------
+  | void qux<int>(bool, bool, bool):
+  |    5|      4|void qux(bool a, bool b, bool c) {
+  |    6|      4|    if ((a && b) || c) {
+  |                            ^2    ^3
+  |  ------------------
+  |  |  Branch (6:10): [True: 2, False: 2]
+  |  |  Branch (6:15): [True: 1, False: 1]
+  |  |  Branch (6:21): [True: 1, False: 2]
+  |  ------------------
+  |  |---> MC/DC Decision Region (6:9) to (6:22)
+  |  |
+  |  |  Number of Conditions: 3
+  |  |     Condition C1 --> (6:10)
+  |  |     Condition C2 --> (6:15)
+  |  |     Condition C3 --> (6:21)
+  |  |
+  |  |  Executed MC/DC Test Vectors:
+  |  |
+  |  |     C1, C2, C3    Result
+  |  |  1 { F,  -,  F  = F      }
+  |  |  2 { T,  F,  F  = F      }
+  |  |  3 { F,  -,  T  = T      }
+  |  |  4 { T,  T,  -  = T      }
+  |  |
+  |  |  C1-Pair: covered: (1,4)
+  |  |  C2-Pair: covered: (2,4)
+  |  |  C3-Pair: covered: (1,3)
+  |  |  MC/DC Coverage for Decision: 100.00%
+  |  |
+  |  ------------------
+  |    7|      2|        volatile int i = 0;
+  |    8|      2|    } else {
+  |    9|      2|        volatile int j = 1;
+  |   10|      2|    }
+  |   11|      4|}
+  ------------------
+  | void qux<long>(bool, bool, bool):
+  |    5|      1|void qux(bool a, bool b, bool c) {
+  |    6|      1|    if ((a && b) || c) {
+  |  ------------------
+  |  |  Branch (6:10): [True: 1, False: 0]
+  |  |  Branch (6:15): [True: 0, False: 1]
+  |  |  Branch (6:21): [True: 0, False: 1]
+  |  ------------------
+  |  |---> MC/DC Decision Region (6:9) to (6:22)
+  |  |
+  |  |  Number of Conditions: 3
+  |  |     Condition C1 --> (6:10)
+  |  |     Condition C2 --> (6:15)
+  |  |     Condition C3 --> (6:21)
+  |  |
+  |  |  Executed MC/DC Test Vectors:
+  |  |
+  |  |     C1, C2, C3    Result
+  |  |  1 { T,  F,  F  = F      }
+  |  |
+  |  |  C1-Pair: not covered
+  |  |  C2-Pair: not covered
+  |  |  C3-Pair: not covered
+  |  |  MC/DC Coverage for Decision: 0.00%
+  |  |
+  |  ------------------
+  |    7|      0|        volatile int i = 0;
+  |    8|      1|    } else {
+  |    9|      1|        volatile int j = 1;
+  |   10|      1|    }
+  |   11|      1|}
+  ------------------
    12|       |
-   13|     11|  for (int i = 0; i < 10; ++i) {
-                                        ^10
-  ------------------
-  |  Branch (13:19): [True: 10, False: 1]
-  ------------------
-   14|     10|    volatile int j = i;
-   15|     10|  }
-   16|       |
-   17|      1|  return 0;
-   18|      1|}
+   13|       |#endif // QUX_HPP_
 ```
 
 
@@ -403,31 +617,35 @@ HTMLページとして表示したい場合は、`-format=html -output-dir=<path
 llvm-cov-20 show ./main -instr-profile=main.profdata \
     -Xdemangler=c++filt \
     -show-mcdc \
+    -show-mcdc-summary \
     -show-line-counts-or-regions \
     -show-branches=count \
     -format=html \
     -output-dir=coverage_html
 ```
 
-全体のカバレッジ結果とそれぞれのファイルごとの詳細なカバレッジ結果がグラフィカルに閲覧できる。
+:::message
+`-show-mcdc-summary`も指定することで、以下のように全体レポートにMC/DCの統計結果も表示できる。
+:::
+
+全体のカバレッジレポートとそれぞれのファイルごとの詳細なカバレッジ結果がグラフィカルに閲覧できる。全体のカバレッジレポートを閲覧するときの注意点として、`qux.hpp`のサマリーを見ると分かるように、テンプレート関数についてはカバレッジが大きく取れている方が表示される。**従って、全体のカバレッジレポートでカバレッジが100%であっても、特殊化の全てが100%とは限らない。**
 
 ![](/images/clang-source-based-coverage/image_1.png =600x)
+*テンプレート関数のカバレッジ結果のサマリーは、大きい方の特殊化が表示される*
 
 ![](/images/clang-source-based-coverage/image_2.png =600x)
 
-全体のレポートは、CLIでも`llvm-cov repot`を用いて表示することが可能である。
+全体のレポートは、CLIでも`llvm-cov report`を用いて表示することが可能である。
 
 ```sh
 $ llvm-cov-20 report ./main -instr-profile=main.profdata -Xdemangler=c++filt -show-mcdc-summary
 Filename                      Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover    MC/DC Conditions    Missed Conditions     Cover
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-bar.cpp                             6                 0   100.00%           1                 0   100.00%           7                 0   100.00%           4                 0   100.00%                   2                    0   100.00%
-foo.hpp                             6                 0   100.00%           1                 0   100.00%           7                 0   100.00%           4                 1    75.00%                   2                    1    50.00%
-main.cpp                            4                 0   100.00%           1                 0   100.00%          12                 0   100.00%           2                 0   100.00%                   0                    0         -
+bar.cpp                             8                 0   100.00%           1                 0   100.00%           7                 0   100.00%           6                 0   100.00%                   3                    0   100.00%
+buz.hpp                             8                 0   100.00%           1                 0   100.00%           7                 0   100.00%           6                 1    83.33%                   3                    1    66.67%
+foo.cpp                             8                 0   100.00%           1                 0   100.00%           7                 0   100.00%           6                 0   100.00%                   3                    2    33.33%
+main.cpp                            1                 0   100.00%           1                 0   100.00%          19                 0   100.00%           0                 0         -                   0                    0         -
+qux.hpp                             8                 0   100.00%           1                 0   100.00%           7                 0   100.00%           6                 0   100.00%                   3                    0   100.00%
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                              16                 0   100.00%           3                 0   100.00%          26                 0   100.00%          10                 1    90.00%                   4                    1    75.00%
+TOTAL                              33                 0   100.00%           5                 0   100.00%          47                 0   100.00%          24                 1    95.83%                  12                    3    75.00%
 ```
-
-:::message
-`-show-mcdc-summary`も指定することで、上記のようにレポートにMC/DCの統計結果も表示できる。
-:::
