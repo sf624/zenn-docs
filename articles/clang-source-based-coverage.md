@@ -215,7 +215,9 @@ llvm-profdata merge -sparse foo1.profraw foo2.profraw -o foo3.profdata
 llvm-profdata merge -sparse foo1.profraw foo2.profdata -o foo3.profdata
 ```
 
-## 4. カバレッジ結果表示
+## 4. カバレッジ結果の表示
+
+### CLIによる表示結果
 
 インデックス付きプロファイル(`.profdata`)は、実行形式も渡すことで`llvm-cov show`によって表示することができる。
 
@@ -236,7 +238,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 その他、使用可能なオプションについては[こちら](https://llvm.org/docs/CommandGuide/llvm-cov.html#id5)を参照。
 :::
 
-実行結果は以下のようになる。この結果から分かるように、
+実行結果は以下のようになる（見やすいように表示を入れ替えた）。この結果から分かるように、
 
 - 非テンプレート関数`foo`は、branch coverageは100%であるものの、MC/DCは100%とならない。
 - 非テンプレート関数`bar`は、MC/DCが100%となる。
@@ -244,7 +246,45 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 - テンプレート関数`qux`は、`int`による特殊化についてはMC/DCが100%となる。
 - テンプレート関数の各行実行回数については、各特殊化別の実行回数とそれを合算したものの2種類が表示される。
 
-```sh
+```
+/path/to/foo.cpp:
+    1|       |#include "foo.hpp"
+    2|       |
+    3|      3|void foo(bool a, bool b, bool c) {
+    4|      3|    if ((a && b) || c) {
+                            ^2    ^2
+  ------------------
+  |  Branch (4:10): [True: 2, False: 1]
+  |  Branch (4:15): [True: 1, False: 1]
+  |  Branch (4:21): [True: 1, False: 1]
+  ------------------
+  |---> MC/DC Decision Region (4:9) to (4:22)
+  |
+  |  Number of Conditions: 3
+  |     Condition C1 --> (4:10)
+  |     Condition C2 --> (4:15)
+  |     Condition C3 --> (4:21)
+  |
+  |  Executed MC/DC Test Vectors:
+  |
+  |     C1, C2, C3    Result
+  |  1 { F,  -,  F  = F      }
+  |  2 { T,  F,  T  = T      }
+  |  3 { T,  T,  -  = T      }
+  |
+  |  C1-Pair: covered: (1,3)
+  |  C2-Pair: not covered
+  |  C3-Pair: not covered
+  |  MC/DC Coverage for Decision: 33.33%
+  |
+  ------------------
+    5|      2|        volatile int i = 0;
+    6|      2|    } else {
+    7|      1|        volatile int j = 1;
+    8|      1|    }
+    9|      3|}
+```
+```
 /path/to/bar.cpp:
     1|       |#include "bar.hpp"
     2|       |
@@ -282,7 +322,8 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
     7|      2|        volatile int j = 1;
     8|      2|    }
     9|      4|}
-
+```
+```
 /path/to/buz.hpp:
     1|       |#ifndef BUZ_HPP_
     2|       |#define BUZ_HPP_
@@ -411,74 +452,8 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
   ------------------
    12|       |
    13|       |#endif // BUZ_HPP_
-
-/path/to/foo.cpp:
-    1|       |#include "foo.hpp"
-    2|       |
-    3|      3|void foo(bool a, bool b, bool c) {
-    4|      3|    if ((a && b) || c) {
-                            ^2    ^2
-  ------------------
-  |  Branch (4:10): [True: 2, False: 1]
-  |  Branch (4:15): [True: 1, False: 1]
-  |  Branch (4:21): [True: 1, False: 1]
-  ------------------
-  |---> MC/DC Decision Region (4:9) to (4:22)
-  |
-  |  Number of Conditions: 3
-  |     Condition C1 --> (4:10)
-  |     Condition C2 --> (4:15)
-  |     Condition C3 --> (4:21)
-  |
-  |  Executed MC/DC Test Vectors:
-  |
-  |     C1, C2, C3    Result
-  |  1 { F,  -,  F  = F      }
-  |  2 { T,  F,  T  = T      }
-  |  3 { T,  T,  -  = T      }
-  |
-  |  C1-Pair: covered: (1,3)
-  |  C2-Pair: not covered
-  |  C3-Pair: not covered
-  |  MC/DC Coverage for Decision: 33.33%
-  |
-  ------------------
-    5|      2|        volatile int i = 0;
-    6|      2|    } else {
-    7|      1|        volatile int j = 1;
-    8|      1|    }
-    9|      3|}
-
-/path/to/main.cpp:
-    1|       |#include "foo.hpp"
-    2|       |#include "bar.hpp"
-    3|       |#include "buz.hpp"
-    4|       |#include "qux.hpp"
-    5|       |
-    6|      1|int main() {
-    7|      1|  foo(false, false, false);
-    8|      1|  foo(true, true, false);
-    9|      1|  foo(true, false, true);
-   10|       |
-   11|      1|  bar(false, false, false);
-   12|      1|  bar(false, false, true);
-   13|      1|  bar(true, true, false);
-   14|      1|  bar(true, false, false);
-   15|       |
-   16|      1|  buz<int>(false, false, false);
-   17|      1|  buz<int>(false, false, true);
-   18|      1|  buz<int>(true, true, false);
-   19|      1|  buz<long>(true, false, false);
-   20|       |
-   21|      1|  qux<int>(false, false, false);
-   22|      1|  qux<int>(false, false, true);
-   23|      1|  qux<int>(true, true, false);
-   24|      1|  qux<int>(true, false, false);
-   25|      1|  qux<long>(true, false, false);
-   26|       |
-   27|      1|  return 0;
-   28|      1|}
-
+```
+```
 /path/to/qux.hpp:
     1|       |#ifndef QUX_HPP_
     2|       |#define QUX_HPP_
@@ -610,7 +585,39 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
    12|       |
    13|       |#endif // QUX_HPP_
 ```
+```
+/path/to/main.cpp:
+    1|       |#include "foo.hpp"
+    2|       |#include "bar.hpp"
+    3|       |#include "buz.hpp"
+    4|       |#include "qux.hpp"
+    5|       |
+    6|      1|int main() {
+    7|      1|  foo(false, false, false);
+    8|      1|  foo(true, true, false);
+    9|      1|  foo(true, false, true);
+   10|       |
+   11|      1|  bar(false, false, false);
+   12|      1|  bar(false, false, true);
+   13|      1|  bar(true, true, false);
+   14|      1|  bar(true, false, false);
+   15|       |
+   16|      1|  buz<int>(false, false, false);
+   17|      1|  buz<int>(false, false, true);
+   18|      1|  buz<int>(true, true, false);
+   19|      1|  buz<long>(true, false, false);
+   20|       |
+   21|      1|  qux<int>(false, false, false);
+   22|      1|  qux<int>(false, false, true);
+   23|      1|  qux<int>(true, true, false);
+   24|      1|  qux<int>(true, false, false);
+   25|      1|  qux<long>(true, false, false);
+   26|       |
+   27|      1|  return 0;
+   28|      1|}
+```
 
+### HTMLによる表示
 
 HTMLページとして表示したい場合は、`-format=html -output-dir=<path/to/dir>`を追加で指定するとよい。
 
@@ -629,12 +636,17 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 `-show-mcdc-summary`も指定することで、以下のように全体レポートにMC/DCの統計結果も表示できる。
 :::
 
-全体のカバレッジレポートとそれぞれのファイルごとの詳細なカバレッジ結果がグラフィカルに閲覧できる。全体のカバレッジレポートを閲覧するときの注意点として、`qux.hpp`のサマリーを見ると分かるように、テンプレート関数についてはカバレッジが大きく取れている方が表示される。**従って、全体のカバレッジレポートでカバレッジが100%であっても、特殊化の全てが100%とは限らない。**
+全体のカバレッジレポートとそれぞれのファイルごとの詳細なカバレッジ結果がグラフィカルに閲覧できる。ファイルごとのカバレッジについては、CLIでは`^`で表示されていたregion countがハイライトされており、マウスオーバーすることでカウントを確認できる。
+
+全体のカバレッジレポートを閲覧するときの注意点として、`qux.hpp`のサマリーを見ると分かるように、テンプレート関数についてはカバレッジが大きく取れている方が表示される。**従って、全体のカバレッジレポートでカバレッジが100%であっても、特殊化の全てが100%とは限らない。**
 
 ![](/images/clang-source-based-coverage/image_1.png =600x)
 *テンプレート関数のカバレッジ結果のサマリーは、大きい方の特殊化が表示される*
 
 ![](/images/clang-source-based-coverage/image_2.png =600x)
+*ハイライト部分は行の実行回数と異なる要素を指し、マウスオーバーすると数字が表示される*
+
+### CLIによる全体レポートの表示
 
 全体のレポートは、CLIでも`llvm-cov report`を用いて表示することが可能である。
 
