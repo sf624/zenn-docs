@@ -122,9 +122,9 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 今回は、下記のようなソースコードのカバレッジ計測を行うものとする。`foo`、`bar`、`buz`、`qux`関数の実装は共通であるが次のような違いがある。
 
-- `foo`は、branch coverageが100%となるが、MC/DCは100%とならないような実行となっている。
+- `foo`は、Branch Coverageが100%となるが、MC/DCは100%とならないような実行となっている。
 
-- `bar`は、MC/DCが100%となるような実行を行っている。（MC/DCが100%であれば、Branch coverageも100%となる）
+- `bar`は、MC/DCが100%となるような実行を行っている。（MC/DCが100%であれば、Branch Coverageも100%となる）
 
 - `buz`はテンプレート関数となっており、テンプレートパラメータを区別しなければ`bar`と同様の条件分岐網羅となるように実行しているが、実際には`int`と`long`の二つの型で実体化されており、それぞれを区別するとMC/DCカバレッジが100%とならないようになっている。
 
@@ -145,7 +145,7 @@ https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa
 https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/main.cpp
 
 :::message
-Branch coverageは、各condition(leaf-level expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各conditionが単独の`true`と`false`の違いで結果のdecisionの`true`と`false`を変化させたような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
+Branch Coverageは、各condition(leaf-level expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各conditionが単独の`true`と`false`の違いで結果のdecisionの`true`と`false`を変化させたような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
 
 https://llvm.org/devmtg/2022-11/slides/TechTalk4-MCDC-EnablingSafetyCriticalCodeCoverage.pdf
 :::
@@ -156,7 +156,7 @@ https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa
 
 ## 1. カバレッジ測定用コンパイル
 
-まず、測定対象のプログラムを、カバレッジ計測用の"instrument code"を挿入した状態でコンパイルする必要がある。これには、`-fcoverage-mapping -fcoverage-mcdc`というオプションを指定すればよい。
+まず、測定対象のプログラムを、カバレッジ計測用の"instrument code"を挿入した状態でコンパイルする必要がある。これには、`-fprofile-instr-generate -fcoverage-mapping`というオプションを指定すればよい。
 
 ```sh
 # インストゥルメントコード付きでコンパイル
@@ -195,7 +195,7 @@ LLVM_PROFILE_FILE="main-%p.profraw" ./main
 
 ### gcovとの違い
 
-gcovの場合は、オブジェクトファイルごとに`.gcno`と`.gcda`ファイルが生成された。しかし、こちらの`llvm-cov`の"source based code coverage"の場合は、**1実行ごとに1つ**の`.profraw`が生成される。従って、gcovのようにオブジェクトファイルごとの測定結果を集約する、というようなプロセスは発生しない。（複数回実行や異なる実行形式の実行結果を集約する場合は、後述するように`llvm-profdata merge`による集約が必要となる。）
+gcovの場合は、オブジェクトファイルごとに`.gcno`と`.gcda`ファイルが生成された。しかし、こちらの`llvm-cov`の"source based code coverage"の場合は、**1プロセスごとに1つ**の`.profraw`が生成される。従って、gcovのようにオブジェクトファイルごとの測定結果を集約する、というようなプロセスは発生しない。（複数回実行や異なる実行形式の実行結果を集約する場合は、後述するように`llvm-profdata merge`による集約が必要となる。）
 
 ## 3. カバレッジ集約
 
@@ -246,7 +246,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 実行結果は以下のようになる（見やすいように表示を入れ替えた）。この結果から分かるように、
 
 
-- 非テンプレート関数`foo`は、branch coverageは100%であるものの、MC/DCは100%とならない。
+- 非テンプレート関数`foo`は、Branch Coverageは100%であるものの、MC/DCは100%とならない。
 - 非テンプレート関数`bar`は、MC/DCが100%となる。
 - テンプレート関数`foo`は、テンプレートパラメータごとのカバレッジ結果が集計されており、それぞれのMC/DCは100%となっていない。
 - テンプレート関数`qux`は、`int`による特殊化についてはMC/DCが100%となる。
@@ -256,7 +256,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 - 宣言のみが記載されたファイルは、カバレッジ結果には表示されない。
 - テンプレート関数の各行実行回数については、各特殊化別の実行回数とそれを合算したものの2種類が表示される。
 
-```
+```sh
 /path/to/foo.cpp:
     1|       |#include "foo.hpp"
     2|       |
@@ -294,7 +294,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
     8|      1|    }
     9|      3|}
 ```
-```
+```sh
 /path/to/bar.cpp:
     1|       |#include "bar.hpp"
     2|       |
@@ -333,7 +333,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
     8|      2|    }
     9|      4|}
 ```
-```
+```sh
 /path/to/buz.hpp:
     1|       |#ifndef BUZ_HPP_
     2|       |#define BUZ_HPP_
@@ -463,7 +463,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
    12|       |
    13|       |#endif // BUZ_HPP_
 ```
-```
+```sh
 /path/to/qux.hpp:
     1|       |#ifndef QUX_HPP_
     2|       |#define QUX_HPP_
@@ -595,7 +595,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
    12|       |
    13|       |#endif // QUX_HPP_
 ```
-```
+```sh
 /path/to/main.cpp:
     1|       |#include "foo.hpp"
     2|       |#include "bar.hpp"
