@@ -1,6 +1,7 @@
 #include "foo.hpp"
 #include "bar.hpp"
 #include "buz.hpp"
+#include "qux.hpp"
 
 int main() {
   foo(false, false, false);
@@ -16,6 +17,12 @@ int main() {
   buz<int>(false, false, true);
   buz<int>(true, true, false);
   buz<long>(true, false, false);
+
+  qux<int>(false, false, false);
+  qux<int>(false, false, true);
+  qux<int>(true, true, false);
+  qux<int>(true, false, false);
+  qux<long>(true, false, false);
 
   return 0;
 }
