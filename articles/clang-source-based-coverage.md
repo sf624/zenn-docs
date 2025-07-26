@@ -64,7 +64,7 @@ g++ --coverage foo.cpp
 clang++ --coverage foo.cpp
 ```
 
-対して、今回説明するsorce-basedカバレッジは以下のように**指定するオプションが異なる**。（なお、上記のオプションと組み合わせた場合は、gcovと"source-based"の両方によるカバレッジ計測が実施される。）
+対して、今回説明するsource-basedカバレッジは以下のように**指定するオプションが異なる**。（なお、上記のオプションと組み合わせた場合は、gcovと"source-based"の両方によるカバレッジ計測が実施される。）
 
 ```sh
 # これは"source based code coverage"仕様のカバレッジを計測するコンパイル
@@ -235,8 +235,8 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 ```
 
 :::message
-- `-Xdemangler=c++filt`は、C++で関数名やクラス名が難読化されてしまうものを読みやすい形にする効果がある（デマングル）。
-- `-show-mcdc`は、MDCDカバレッジ結果を表示するために指定している。
+- `-Xdemangler=c++filt`は、C++で関数名やクラス名が難読化（[名前マングル](https://ja.wikipedia.org/wiki/%E5%90%8D%E5%89%8D%E4%BF%AE%E9%A3%BE)）されてしまうものを読みやすい形にする効果がある（デマングル）。
+- `-show-mcdc`は、MC/DCカバレッジ結果を表示するために指定している。
 - `-show-line-counts-or-regions`は、行レベルの実行回数と行内の要素の実行回数が異なる場合に後者を`^`で別途表示する効果を持つ。
 - `-show-branches=count`は、各条件分岐の実現回数を表示する。
 
