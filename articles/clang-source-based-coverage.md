@@ -125,19 +125,19 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 - `qux`もテンプレート関数となっており、`int`による特殊化はMC/DCが100%となるが、`long`による特殊化はMC/DCが0%となる。
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.hpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/foo.hpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.cpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/foo.cpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.hpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/bar.hpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.cpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/bar.cpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/buz.hpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/buz.hpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/qux.hpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/qux.hpp
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/main.cpp
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/main.cpp
 
 :::message
 Branch coverageは、各condition(leaf-level expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各conditionが単独の`true`と`false`の違いで結果のdecisionの`true`と`false`を変化させたような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
@@ -147,7 +147,7 @@ https://llvm.org/devmtg/2022-11/slides/TechTalk4-MCDC-EnablingSafetyCriticalCode
 
 カバレッジ結果は、`coverage.sh`で取得できる。詳細については、以下に説明する。
 
-https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/coverage.sh
+https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/coverage.sh
 
 ## 1. カバレッジ測定用コンパイル
 
