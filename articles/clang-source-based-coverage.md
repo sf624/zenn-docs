@@ -8,7 +8,7 @@ published: false
 
 ## この記事を読むと…
 
-- clangのsource basedカバレッジの計測・取得方法が分かります
+- Clangのsource basedカバレッジの計測・取得方法が分かります
 - MC/DCカバレッジなどの、高精度なカバレッジ計測ができるようになります
 
 ## はじめに
@@ -17,7 +17,7 @@ C/C++のカバレッジ計測手法についてはgcovが特に有名である�
 
 特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
 
-今回は、以下のclangの"source based code coverage"の公式レファレンスをもとに解説した。
+今回は、以下のClangの"source based code coverage"の公式レファレンスをもとに解説した。
 
 https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
 
@@ -47,7 +47,7 @@ sudo ./llvm.sh 20
 
 ## その他のカバレッジ測定手法について
 
-clangには3つのカバレッジ測定手法があり、混同すると良くないので予め説明する。
+Clangには3つのカバレッジ測定手法があり、混同すると良くないので予め説明する。
 
 - gcov: GCCが提供するカバレッジ測定。最もよく知られているカバレッジ測定手法。
 - Sanitizer Coverage: 軽量カバレッジ。実行回数などのカウントはせず、到達したかどうかだけ測定する。
@@ -55,7 +55,7 @@ clangには3つのカバレッジ測定手法があり、混同すると良く�
 
 このうち、今回説明するのは最後の"source based"カバレッジである。
 
-特にgcovとの違いには注意を要する。gcc互換なclangもgcov仕様のカバレッジをサポートしているが、"source based"カバレッジとは別物であり、ネットで検索していて最もヒットしやすいのはこちらのカバレッジである。**`--coverage`オプションを指定した場合は、このgcov形式のカバレッジが計測される。**
+特にgcovとの違いには注意を要する。GCC互換なClangもgcov仕様のカバレッジをサポートしているが、"source based"カバレッジとは別物であり、ネットで検索していて最もヒットしやすいのはこちらのカバレッジである。**`--coverage`オプションを指定した場合は、このgcov形式のカバレッジが計測される。**
 
 ```sh
 # これらはgcov仕様のカバレッジを計測するコンパイル
@@ -74,10 +74,10 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 | 用語 | 役割 | 関連するファイル |
 | - | - | - |
-| `gcov` | "GCC"が提供するカバレッジ測定ツールおよびその仕様 | `.gcda`、`.gcno` |
-| `lcov` | "linux-test-project"が提供するgcovのカバレッジ結果をHTMLなどでグラフィカルに表示するツール | `.gcda`、 `.gcno`、`.info` |
-| `llvm-profdata` | "LLVM"独自のカバレッジデータである`.profraw`ファイルを`.profdata`として集約するツール | `.profraw`、`.profdata` |
-| `llvm-cov` | "LLVM"が提供するclangのカバレッジ測定・表示ツール。gcovとLLVM独自の"source based code coverage"の両仕様に対応している | `.profdata` |
+| `gcov` | GCCが提供するカバレッジ測定ツールおよびその仕様 | `.gcda`、`.gcno` |
+| `lcov` | linux-test-projectが提供するgcovのカバレッジ結果をHTMLなどでグラフィカルに表示するツール | `.gcda`、 `.gcno`、`.info` |
+| `llvm-profdata` | LLVM独自のカバレッジデータである`.profraw`ファイルを`.profdata`として集約するツール | `.profraw`、`.profdata` |
+| `llvm-cov` | LLVMが提供するClangのカバレッジ測定・表示ツール。gcovとLLVM独自の"source based code coverage"の両仕様に対応している | `.profdata` |
 
 
 ## source-basedカバレッジの計測・表示の流れ
