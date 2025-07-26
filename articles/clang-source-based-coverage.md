@@ -83,7 +83,7 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 ## source-basedカバレッジの計測・表示の流れ
 
-カバレッジ計測・表示の全体像は以下の通りである。
+カバレッジ計測・表示の全体像は以下の通りである。(MC/DCカバレッジについては、追加のオプションが必要なため後述する説明を参照のこと)
 
 1. カバレッジ測定用の"instrument code"を挿入した状態で、測定対象のプログラムをコンパイルする。
 
