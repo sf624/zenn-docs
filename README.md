@@ -1,3 +1,4 @@
-# Zenn CLI
+# Zenn docs
 
-* [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
+以下のzennの記事のリポジトリです。
+https://zenn.dev/misokatsu6
