@@ -16,7 +16,7 @@ published: false
 
 C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source-based"カバレッジと呼ばれる手法を提供している。gcovでは、カバレッジ計測用のコード（instrument）がコンパイルの最終段階で挿入されるため最適化などの影響を受けやすい。一方で、"source-based"カバレッジではその名の通り、ソースコードレベルでinstrumentが挿入されるため[ほぼ最適化の影響を受けない](https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#impact-of-llvm-optimizations-on-coverage-reports)高精度なカバレッジ測定が可能となっている。
 
-特に、LLVM 18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
+特に、LLVM 18.1.0からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
 
 今回は、以下のClangの"source based code coverage"の公式レファレンスをもとに解説した。
 
@@ -28,7 +28,7 @@ https://qiita.com/joule/items/f9de29ceb1d78c5658d8
 
 ## LLVMのバージョンについて
 
-現時点（2025年7月）で安定版の最新版であるLLVM 20を使用する。
+現時点（2025年7月）で安定版の最新版であるLLVM 20.1.8を使用する。
 
 ```sh
 $ clang++-20 --version
