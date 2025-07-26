@@ -648,7 +648,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 
 ### CLIによる全体レポートの表示
 
-全体のレポートは、CLIでも`llvm-cov report`を用いて表示することが可能である。
+全体のレポートは、CLIでも`llvm-cov report`を用いて表示することが可能である。HTMLの場合と同様であるが、テンプレート関数についてはカバレッジが大きく取れている方が表示される。
 
 ```sh
 $ llvm-cov-20 report ./main -instr-profile=main.profdata -Xdemangler=c++filt -show-mcdc-summary
