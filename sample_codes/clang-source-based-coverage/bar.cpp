@@ -2,8 +2,8 @@
 
 void bar(bool a, bool b, bool c) {
     if ((a && b) || c) {
-        volatile int i = 0; // This line is executed when a and b are true, or c is true
+        volatile int i = 0;
     } else {
-        volatile int j = 1; // This line is executed when a and b are false, and c is false
+        volatile int j = 1;
     }
 }
