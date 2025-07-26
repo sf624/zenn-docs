@@ -3,7 +3,8 @@ title: "Clangのソースベースド(source-based)カバレッジ計測によ�
 emoji: "📔"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["c", "cpp", "clang", "llvm", "coverage"]
-published: false
+published: true
+published_at: "2025-07-28 07:00"
 ---
 
 ## この記事を読むと…
