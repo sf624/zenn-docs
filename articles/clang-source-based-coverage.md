@@ -9,13 +9,15 @@ published: false
 ## この記事を読むと…
 
 - clangのsource basedカバレッジの計測・取得方法が分かります
-- MC/DCカバレッジが計測できるようになります
+- MC/DCカバレッジなどの、高精度なカバレッジ計測ができるようになります
 
 ## はじめに
 
-C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source-based"カバレッジと呼ばれる手法を提供している。特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）というカバレッジが計測できるようになり、より精密なカバレッジ計測が可能となっている。
+C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source-based"カバレッジと呼ばれる手法を提供している。gcovでは、カバレッジ計測用のコード（instrument）がコンパイルの最終段階で挿入されるため最適化などの影響を受けやすい。一方で、"source-based"カバレッジではその名の通り、ソースコードレベルでinstrumentが挿入されるため[ほぼ最適化の影響を受けない](https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#impact-of-llvm-optimizations-on-coverage-reports)高精度なカバレッジ測定が可能となっている。
 
-今回は、以下のclangの"source based code coverage"の公式レファレンスをもとに解説する。
+特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）という種類のカバレッジが計測できるようになり、より精密で実用的なカバレッジ計測が可能となっている。そこでこの記事では、"source-based"カバレッジの基本的な計測方法を説明し、その計測結果を確認する。
+
+今回は、以下のclangの"source based code coverage"の公式レファレンスをもとに解説した。
 
 https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
 
@@ -35,9 +37,17 @@ Thread model: posix
 InstalledDir: /usr/lib/llvm-20/bin
 ```
 
-## その他のカバレッジ測定手法との比較
+インストールする場合、`llvm.sh`を用いるのが最も簡単である。([ref](https://apt.llvm.org/))
 
-clangには、3つのカバレッジ測定手法があり、混同すると良くないので予め説明する。
+```sh
+wget https://apt.llvm.org/llvm.sh
+chmod +x llvm.sh
+sudo ./llvm.sh 20
+```
+
+## その他のカバレッジ測定手法について
+
+clangには3つのカバレッジ測定手法があり、混同すると良くないので予め説明する。
 
 - gcov: GCCが提供するカバレッジ測定。最もよく知られているカバレッジ測定手法。
 - Sanitizer Coverage: 軽量カバレッジ。実行回数などのカウントはせず、到達したかどうかだけ測定する。
@@ -45,7 +55,7 @@ clangには、3つのカバレッジ測定手法があり、混同すると良�
 
 このうち、今回説明するのは最後の"source based"カバレッジである。
 
-特にgcovとの違いには注意を要する。gcc互換なclangもgcov仕様のカバレッジをサポートしているが、"source based"カバレッジとは別物であり、ネットを検索していて最もヒットしやすいのはこちらのカバレッジである。`--coverage`オプションを指定した場合は、このgcov形式のカバレッジが取得される。
+特にgcovとの違いには注意を要する。gcc互換なclangもgcov仕様のカバレッジをサポートしているが、"source based"カバレッジとは別物であり、ネットで検索していて最もヒットしやすいのはこちらのカバレッジである。**`--coverage`オプションを指定した場合は、このgcov形式のカバレッジが計測される。**
 
 ```sh
 # これらはgcov仕様のカバレッジを計測するコンパイル
@@ -53,10 +63,10 @@ g++ --coverage foo.cpp
 clang++ --coverage foo.cpp
 ```
 
-対して、今回説明するsorce-basedカバレッジは以下のように指定するオプションが異なる。
+対して、今回説明するsorce-basedカバレッジは以下のように**指定するオプションが異なる**。（なお、上記のオプションと組み合わせた場合は、gcovと"source-based"の両方によるカバレッジ計測が実施される。）
 
 ```sh
-# これは"source based code coverage"仕様のカバレッジを取得するコンパイル
+# これは"source based code coverage"仕様のカバレッジを計測するコンパイル
 clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 ```
 
@@ -70,9 +80,9 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 | `llvm-cov` | "LLVM"が提供するclangのカバレッジ測定・表示ツール。gcovとLLVM独自の"source based code coverage"の両仕様に対応している | `.profdata` |
 
 
-## source-basedカバレッジの測定・表示の流れ
+## source-basedカバレッジの計測・表示の流れ
 
-カバレッジ取得・表示の全体像は以下の通りである。
+カバレッジ計測・表示の全体像は以下の通りである。
 
 1. カバレッジ測定用の"instrument code"を挿入した状態で、測定対象のプログラムをコンパイルする。
 
@@ -118,7 +128,7 @@ https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-cov
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.hpp
 
-カバレッジは、`coverage.sh`で取得できる。詳細について以下に説明する。
+カバレッジ結果は、`coverage.sh`で取得できる。詳細について以下に説明する。
 
 https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/coverage.sh
 
@@ -165,7 +175,7 @@ LLVM_PROFILE_FILE="main-%p.profraw" ./main
 
 gcovの場合は、オブジェクトファイルごとに`.gcno`と`.gcda`ファイルが生成された。しかし、こちらの`llvm-cov`の"source based code coverage"の場合は、**1実行ごとに1つ**の`.profraw`が生成される。従って、gcovのようにオブジェクトファイルごとの測定結果を集約する、というようなプロセスは発生しない。（複数回実行や異なる実行形式の実行結果を集約する場合は、後述するように`llvm-profdata merge`による集約が必要となる。）
 
-## 3. カバレッジ集約（`.profdata`）
+## 3. カバレッジ集約
 
 生プロファイル（`.profraw`）はそのままではカバレッジ結果を表示できず、インデックス化をする必要がある。これには`llvm-profdata merge`を使用する。インデックス化をしたあとは、生プロファイルは不要であるため削除しても問題ない。
 
