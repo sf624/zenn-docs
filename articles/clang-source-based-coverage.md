@@ -1,6 +1,6 @@
 ---
-title: "Clangのソースベースコードカバレッジ"
-emoji: "🌊"
+title: "Clangのソースベースド(source-based)カバレッジ計測"
+emoji: "📔"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["c", "cpp", "clang", "llvm", "coverage"]
 published: false
@@ -9,20 +9,23 @@ published: false
 ## この記事を読むと…
 
 - clangのsource basedカバレッジの計測・取得方法が分かります
-- MCDCカバレッジが計測できるようになります
+- MC/DCカバレッジが計測できるようになります
 
 ## はじめに
 
-C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source based"カバレッジと呼ばれる手法を提供している。特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）というカバレッジが計測できるようになり、より精密なカバレッジ計測が可能となっている。
-
+C/C++のカバレッジ計測手法についてはgcovが特に有名であるが、LLVMは独自に"source-based"カバレッジと呼ばれる手法を提供している。特に、LLVM18からは[MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)（修正条件／決定網羅）というカバレッジが計測できるようになり、より精密なカバレッジ計測が可能となっている。
 
 今回は、以下のclangの"source based code coverage"の公式レファレンスをもとに解説する。
 
 https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
 
+また、以下の記事も参考にさせていただいた。
+
 https://qiita.com/joule/items/f9de29ceb1d78c5658d8
 
-また、現時点で最新のLLVM 20を使用する。
+## LLVMのバージョンについて
+
+現時点（2025年7月）で安定版の最新版であるLLVM 20を使用する。
 
 ```sh
 $ clang++-20 --version
@@ -50,14 +53,14 @@ g++ --coverage foo.cpp
 clang++ --coverage foo.cpp
 ```
 
-対して、今回説明するsorce-basedカバレッジは指定するオプションが異なる。
+対して、今回説明するsorce-basedカバレッジは以下のように指定するオプションが異なる。
 
 ```sh
-#これは"source based code coverage"仕様のカバレッジを取得するコンパイル
+# これは"source based code coverage"仕様のカバレッジを取得するコンパイル
 clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 ```
 
-このあたり、事情がややこしく混同しやすいため、以下によくカバレッジ測定で出てくるコマンド・用語名とその意味を示す。紛らわしいが、**`lcov`は`llvm-cov`ではない**。
+このあたり、事情がややこしく混同しやすいため、以下によくカバレッジ測定で出てくるコマンド・用語名とその意味を示す。名前が紛らわしいが、**`lcov`は`llvm-cov`とは別物で**、記事の最後に登場するHTMLのレポートは`lcov`の機能ではなく、`llvm-cov show`によるものである。
 
 | 用語 | 役割 | 関連するファイル |
 | - | - | - |
