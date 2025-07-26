@@ -235,7 +235,7 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
 ```
 
 :::message
-- `-Xdemangler=c++filt`は、C++で関数名やクラス名が難読化（[名前マングル](https://ja.wikipedia.org/wiki/%E5%90%8D%E5%89%8D%E4%BF%AE%E9%A3%BE)）されてしまうものを読みやすい形にする効果がある（デマングル）。
+- `-Xdemangler=c++filt`は、C++で関数名やクラス名が難読化（[名前マングル](https://ja.wikipedia.org/wiki/%E5%90%8D%E5%89%8D%E4%BF%AE%E9%A3%BE)）されてしまうものを読みやすい形にする効果がある（デマングルという）。
 - `-show-mcdc`は、MC/DCカバレッジ結果を表示するために指定している。
 - `-show-line-counts-or-regions`は、行レベルの実行回数と行内の要素の実行回数が異なる場合に後者を`^`で別途表示する効果を持つ。
 - `-show-branches=count`は、各条件分岐の実現回数を表示する。
