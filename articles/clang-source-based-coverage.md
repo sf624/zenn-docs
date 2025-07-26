@@ -1,5 +1,5 @@
 ---
-title: "Clangのソースベースド(source-based)カバレッジ計測"
+title: "Clangのソースベースド(source-based)カバレッジ計測によるMC/DC測定"
 emoji: "📔"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["c", "cpp", "clang", "llvm", "coverage"]
