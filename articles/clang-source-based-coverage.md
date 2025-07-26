@@ -107,7 +107,17 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 - `foo`はテンプレート関数となっており、テンプレートパラメータを区別しなければ`bar`と同様の条件分岐網羅となるように実行しているが、実際には`int`と`long`の二つの型で実体化されていて、それぞれの実体化についてはMC/DCカバレッジが100%とならないようになっている。
 
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/main.cpp
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.hpp
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/bar.cpp
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/foo.hpp
+
 カバレッジは、`coverage.sh`で取得できる。詳細について以下に説明する。
+
+https://github.com/sf624/zenn-docs/blob/main/sample_codes/clang-source-based-coverage/coverage.sh
 
 ## 1. カバレッジ測定用コンパイル
 
@@ -386,7 +396,13 @@ llvm-cov-20 show ./main -instr-profile=main.profdata \
     -output-dir=coverage_html
 ```
 
-また、全体のレポートをCLIで、`llvm-cov repot`を用いて表示することも可能である。
+全体のカバレッジ結果とそれぞれのファイルごとの詳細なカバレッジ結果がグラフィカルに閲覧できる。
+
+![](/images/clang-source-based-coverage/image_1.png =600x)
+
+![](/images/clang-source-based-coverage/image_2.png =600x)
+
+全体のレポートは、CLIでも`llvm-cov repot`を用いて表示することが可能である。
 
 ```sh
 $ llvm-cov-20 report ./main -instr-profile=main.profdata -Xdemangler=c++filt
