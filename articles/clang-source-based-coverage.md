@@ -83,14 +83,15 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 ## source-basedカバレッジの計測・表示の流れ
 
-カバレッジ計測・表示の全体像は以下の通りである。(MC/DCカバレッジについては、追加のオプションが必要なため後述する説明を参照のこと)
+カバレッジ計測・表示の全体像は以下の通りである。
 
 1. カバレッジ測定用の"instrument code"を挿入した状態で、測定対象のプログラムをコンパイルする。
 
     ```sh
     clang++ foo.cpp -o foo \
         -fprofile-instr-generate \
-        -fcoverage-mapping
+        -fcoverage-mapping \
+        -fcoverage-mcdc
     ```
 
 2. 出来上がったプログラムを実行し、`.profraw`という生プロファイルを生成する。
@@ -108,7 +109,11 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 4. インデックス付きプロファイルを表示する。
 
     ```sh
-    llvm-cov show ./foo -instr-profile=foo.profdata
+    llvm-cov show ./foo -instr-profile=foo.profdata \
+        -Xdemangler=c++filt \
+        -show-mcdc \
+        -show-line-counts-or-regions \
+        -show-branches=count
     ```
 
 以下、これらの手順について詳細を説明する。
