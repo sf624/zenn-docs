@@ -8,7 +8,8 @@ rm -f *.profdata *.profraw main
 rm -rf $html_output_dir
 
 # Compile the code with coverage flags
-clang++-20 foo.cpp bar.cpp main.cpp -o main \
+LLVM_VERSION=20
+clang++-$LLVM_VERSION foo.cpp bar.cpp main.cpp -o main \
     -fprofile-instr-generate \
     -fcoverage-mapping \
     -fcoverage-mcdc
@@ -17,10 +18,10 @@ clang++-20 foo.cpp bar.cpp main.cpp -o main \
 LLVM_PROFILE_FILE="main.profraw" ./main
 
 # Merge the raw coverage data into a single profile data file
-llvm-profdata-20 merge -sparse main.profraw -o main.profdata
+llvm-profdata-$LLVM_VERSION merge -sparse main.profraw -o main.profdata
 
 # Generate the HTML coverage report
-llvm-cov-20 show ./main -instr-profile=main.profdata \
+llvm-cov-$LLVM_VERSION show ./main -instr-profile=main.profdata \
     -Xdemangler=c++filt \
     -show-mcdc \
     -show-mcdc-summary \
