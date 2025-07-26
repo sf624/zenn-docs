@@ -1,9 +1,9 @@
 #include "bar.hpp"
 
-void bar(const int x, const int y) {
-  if ((x > 0) && (y > 0)) {
-    volatile int i = 0;
-  } else {
-    volatile int i = 1;
-  }
+void bar(bool a, bool b, bool c) {
+    if ((a && b) || c) {
+        volatile int i = 0; // This line is executed when a and b are true, or c is true
+    } else {
+        volatile int j = 1; // This line is executed when a and b are false, and c is false
+    }
 }

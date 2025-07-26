@@ -1,18 +1,21 @@
 #include "foo.hpp"
 #include "bar.hpp"
+#include "buz.hpp"
 
 int main() {
-  bar(2, 3);
-  bar(2, -5);
-  bar(-3, 3);
+  foo(false, false, false);
+  foo(true, true, false);
+  foo(true, false, true);
 
-  foo<int>(2, 3);
-  foo<int>(2, -5);
-  foo<long>(-3, 3);
+  bar(false, false, false);
+  bar(false, false, true);
+  bar(true, true, false);
+  bar(true, false, false);
 
-  for (int i = 0; i < 10; ++i) {
-    volatile int j = i;
-  }
+  buz<int>(false, false, false);
+  buz<int>(false, false, true);
+  buz<int>(true, true, false);
+  buz<long>(true, false, false);
 
   return 0;
 }

@@ -8,7 +8,7 @@ rm -f *.profdata *.profraw main
 rm -rf $html_output_dir
 
 # Compile the code with coverage flags
-clang++-20 main.cpp bar.cpp -o main \
+clang++-20 foo.cpp bar.cpp main.cpp -o main \
     -fprofile-instr-generate \
     -fcoverage-mapping \
     -fcoverage-mcdc
