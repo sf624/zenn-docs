@@ -136,17 +136,17 @@ C0とC1についてはほとんど差異が見られないが、C2について�
 | 出典 | C0 | C1 | C2 |
 | - | :-: | :-: | :-: |
 | [テクマトリクス](https://www.techmatrix.co.jp/t/quality/coverage.html) | Statement Coverage | Decision Coverage | Condition Coverage |
-| [Sky](https://www.skygroup.jp/tech-blog/article/610/) | Statement Coverage | Decision Coverage | ?[^sky] |
+| [Sky](https://www.skygroup.jp/tech-blog/article/610/) | Statement Coverage | Decision Coverage | Path Coverage?[^sky] |
 | [SHIFT](https://service.shiftinc.jp/column/4547/) | Statement Coverage | Decision Coverage | **Multiple Condition Coverage** |
 | [NRI Netcom](https://tech.nri-net.com/entry/coverage_c0_c1_c2_mcc) | Statement Coverage | Decision Coverage | Condition Coverage |
-| [ガイオ・テクノロジー](https://www.gaio.co.jp/gaioclub/glossary_blog05/#col02-1) | Statement Coverage | Decision Coverage | Condition Coverage ?[^gaio] |
+| [ガイオ・テクノロジー](https://www.gaio.co.jp/gaioclub/glossary_blog05/#col02-1) | Statement Coverage | Decision Coverage | Condition Coverage?[^gaio] |
 | [QBOOK](https://www.qbook.jp/column/632.html) | Statement Coverage | Decision Coverage | **Multiple Condition Coverage** |
 | [computex](https://www.computex.co.jp/products/technology/coverage/index.htm) | Statement Coverage | ?[^computex] | ?[^computex] |
 | [AGEST](https://agest.co.jp/column/2021-09-24/) | Statement Coverage | Decision Coverage | Condition Coverage |
 | [MONOist](https://monoist.itmedia.co.jp/mn/articles/1610/20/news009.html) | Statement Coverage | Deicision Coverage | **Multiple Condition Coverage** |
 | [VECTOR](https://www.vector.com/jp/ja/know-how/vj-columns/vj-software-testing/vj-columns220330/#c289232) | Statement Coverage  | Deicision Coverage | **Multiple Condition Coverage** |
 
-[^sky]: C2の定義を「条件式間のコードパスの全ての組み合わせ」としており、普通のCondition Coverageの定義と異なると判断した。
+[^sky]: C2の定義を「条件式間のコードパスの全ての組み合わせ」としており、NASAは言及していないが、いわゆる"Path Coverage"であると判断した。
 
 [^gaio]: 出典の説明が曖昧であり、Condition Coverageかどうかの判断が難しかった。
 
