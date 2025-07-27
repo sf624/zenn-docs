@@ -136,7 +136,9 @@ Branch Coverageは、各Condition(= leaf-level boolean expression)が`true`と`f
 https://llvm.org/devmtg/2022-11/slides/TechTalk4-MCDC-EnablingSafetyCriticalCodeCoverage.pdf
 
 :::message
-このBranch Coverageは、いわゆるC2カバレッジ（条件網羅）に相当すると考えられる。一方で、GCOVのBranch Coverageはコンパイル後の制御フローグラフ上の分岐網羅を指しており、定義が異なることに注意が必要である。
+このBranch Coverageは、いわゆるC2カバレッジ（単純条件カバレッジ/Condition coverage）に相当すると考えられ、いわゆるC1カバレッジ（判断カバレッジ/Branch coverage）とは異なる。"Branch coverage"と名前が同じであるが混同しないように注意したい。
+
+また、GCOVのBranch Coverageはコンパイル後の制御フローグラフ上の分岐網羅を指しており、コンパイル結果によっては結果が異なり得ることに注意したい。
 :::
 
 https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/foo.hpp
