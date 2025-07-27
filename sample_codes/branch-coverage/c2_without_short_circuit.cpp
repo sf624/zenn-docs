@@ -1,0 +1,7 @@
+#include "c2_without_short_circuit.hpp"
+
+void c2_without_short_circuit(bool a, bool b, bool c) {
+    if ((a && b) || c) {
+        volatile int i = 0;
+    }
+}
