@@ -153,7 +153,7 @@ C0 (Statement Coverage) = LLVM Line Coverage <= C1 <= C2 (with short circuit) = 
 
 用語についても各社で揺らぎがあったり、同じ用語であっても言葉の定義が異なるということがあったため、NASAの[文献](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf)で用いられている用語とその定義で統一して記載する。（例えば、NASAでいう"Multiple Condition Coverage"を、VECTORでは"Condition Coverage"と呼称していた）
 
-C0とC1についてはほとんど差異が見られないが、C2についてはかなりの定義の違いがあった。
+C0とC1についてはほとんど差異が見られないが、C2の定義についてはかなりの違いがあり、主にCondition Coverageとする流派とMuptiple Condition Coverage (MCC)とする流派の2つが目立った。前述したように、Condition CoverageであればMC/DCよりも遥かに弱いカバレッジであるのに対して、MCCはMC/DCよりも強いカバレッジであり、レベル感が全く異なる。
 
 | 出典 | C0 Coverage | C1 Coverage | C2 Coverage |
 | - | :-: | :-: | :-: |
