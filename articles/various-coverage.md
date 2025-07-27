@@ -155,7 +155,7 @@ C0 (Statement Coverage) = LLVM Line Coverage <= C1 <= C2 (with short circuit) = 
 
 C0とC1についてはほとんど差異が見られないが、C2についてはかなりの定義の違いがあった。
 
-| 出典 | C0 | C1 | C2 |
+| 出典 | C0 Coverage | C1 Coverage | C2 Coverage |
 | - | :-: | :-: | :-: |
 | [テクマトリクス](https://www.techmatrix.co.jp/t/quality/coverage.html) | Statement Coverage | Decision Coverage | Condition Coverage |
 | [Sky](https://www.skygroup.jp/tech-blog/article/610/) | Statement Coverage | Decision Coverage | Path Coverage?[^sky] |
