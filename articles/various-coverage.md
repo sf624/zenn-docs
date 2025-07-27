@@ -49,24 +49,45 @@ https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf
 
 ### C0カバレッジ
 
-ステートメントカバレッジとする。
+Statement Coverageと定義する。Statement Coverageは、C/C++で定義されるところの各statementが一度でも実行されたかどうかを指す。多くの場合、後述するDecision Coverageが取れていれば、Statement Coverageも取れている。
 
 ```cpp
-void foo(bool a, bool b) {
-    if (a && b) {
+void foo(bool a) {
+    if (a) {
         volatile int i = 0;
     }
 }
 
 void main () {
-    foo(true, true); // C0 coverage
-                     // not C1 coverage
+    foo(true); // C0 coverage
+               // not C1 coverage
+               // not C2 coverage
 }
 ```
 
+しかしながら、厳密にはDecision Coverage（更にはMC/DCやMCCにも）には包含されない。なぜなら、`return`文のあとに到達不可能なStatementがある場合があるからである。しかしながら、このようなプログラムは一般にはコーディングルールによって排除されるものであり、「普通の」コーディングにおいてはDecision CoverageがStatement Coverageを包含すると考えてよい。
+
+```cpp
+void foo(bool a) {
+    if (a) {
+        volatile int i = 0;
+    }
+    return;
+    volatile int j = 1; // UNREACHABLE!
+}
+
+void main () {
+    foo(true);
+    foo(false); // Decision, Condition, Condition/Decision, MC/DC, MCC coverage
+                // but not Statement Coverage!
+}
+
+```
+
+
 ### C1カバレッジ
 
-判断文カバレッジとする。
+Decision Coverageとする。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -78,13 +99,14 @@ void foo(bool a, bool b) {
 void main () {
     foo(true, true);
     foo(true, false); // C1 coverage
+                      // also C0 coverage
                       // not C2 coverage
 }
 ```
 
 ### C2カバレッジ
 
-単純条件カバレッジとする。ただし、短絡評価を考慮せずに各条件が真・偽の2種類が入力されるだけで良しとするのか、短絡評価を考慮して評価されなかった条件についてはカバレッジの対象外とするかで結果が異なる。この記事においては、前者を"C2 (without short circuit)"、後者を"C2 (with short circuit)"とする。後者のほうがより厳しい条件である。
+Condition Coverageとする。ただし、短絡評価を考慮せずに各条件が真・偽の2種類が入力されるだけで良しとするのか、短絡評価を考慮して評価されなかった条件についてはカバレッジの対象外とするかで結果が異なる。この記事においては、前者を"C2 (without short circuit)"、後者を"C2 (with short circuit)"とする。後者のほうがより厳しい条件である。
 
 ```cpp
 void foo(bool a, bool b) {
