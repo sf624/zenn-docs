@@ -131,15 +131,15 @@ clang++ -fprofile-instr-generate -fcoverage-mapping foo.cpp
 
 - `qux`もテンプレート関数となっており、`int`による特殊化はMC/DCが100%となるが、`long`による特殊化はMC/DCが0%となる。
 
-Branch Coverageは、各Condition(= leaf-level boolean expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各Conditionが単独の`true`と`false`の違いでDecision(= composed boolean expression)の`true`と`false`を変化させるような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
+Branch Coverageは各Condition(= leaf-level boolean expression)が`true`と`false`のそれぞれに少なくとも一度判定されているかどうかを測定したカバレッジであり、対してMC/DCは各Conditionが単独の`true`と`false`の違いでDecision(= composed boolean expression)の`true`と`false`を変化させるような実行の組み合わせがあるかどうかを測定したカバレッジであり、後者の方が厳しい。詳細については、以下の文献が参考となる。
 
 https://llvm.org/devmtg/2022-11/slides/TechTalk4-MCDC-EnablingSafetyCriticalCodeCoverage.pdf
 
 :::message
-詳しくは別の記事で述べるが、これはいわゆるC2カバレッジ(Condition Coverage)よりも厳しい。[NASAの定義](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf)によるCondition Coverageでは、短絡評価を考慮せずに各conditionに`true`と`false`の両方が入力されるかだけが基準である。一方で、上記のBranch Coverageでは各conditionが`true`、`false`と実際に評価されなければならず、C/C++においては短絡評価の存在を考慮にいれなければならない。
+詳しくは別の記事で述べるが、ここでいうBranch CoverageはいわゆるC2カバレッジ(Condition Coverage)よりも厳しい。[NASAの定義](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf)によるCondition Coverageでは、短絡評価を考慮せずに各conditionに`true`と`false`の両方が入力されるかどうかだけがカバレッジの判断基準となっている。一方で、上記のBranch Coverageでは各conditionが`true`と`false`の両方に実際に評価されなければならず、C/C++においては短絡評価の存在を考慮にいれる必要が出てくる。
 :::
 :::message
-GCOVのBranch Coverageはコンパイル後の制御フローグラフ上の分岐網羅を指しており、コンパイル時の最適化結果などによってはLLVMの結果と異なり得ることに注意したい。
+GCOVのBranch Coverageはコンパイル後の制御フローグラフ上の分岐網羅を指しており、コンパイル時の最適化結果などによってはLLVMのBranch Coverageの結果と異なり得ることに注意したい。
 :::
 
 https://github.com/sf624/zenn-docs/blob/da96b6aa9c0e41d623bc416e15f76e7284de20aa/sample_codes/clang-source-based-coverage/foo.hpp
