@@ -30,6 +30,10 @@ published: false
 
 http://a-lifelong-tester.cocolog-nifty.com/blog/2011/12/4-277e.html
 
+## ISTQBによる定義
+
+https://jstqb.jp/dl/JSTQB_CTAL-TTA_Syllabus_version2024.v4.0.J01.pdf
+
 ## NASAによる定義
 
 https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf
