@@ -53,7 +53,8 @@ https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf
 
 ### C0カバレッジ
 
-Statement Coverageと定義する。Statement Coverageは、C/C++で定義されるところの各statementが一度でも実行されたかどうかを指す。多くの場合、後述するDecision Coverageが取れていれば、Statement Coverageも取れている。
+Statement Coverageと定義する。これは、C/C++で定義されるところの各statementが一度でも実行されたかどうかを指す。
+
 
 ```cpp
 void foo(bool a) {
@@ -69,7 +70,7 @@ void main () {
 }
 ```
 
-しかしながら、厳密にはDecision Coverage（更にはMC/DCやMCCにも）には包含されない。なぜなら、`return`文のあとに到達不可能なStatementがある場合があるからである。しかしながら、このようなプログラムは一般にはコーディングルールによって排除されるものであり、「普通の」コーディングにおいてはDecision CoverageがStatement Coverageを包含すると考えてよい。
+多くの場合、後述するDecision Coverageが取れていれば、Statement Coverageも取れていることになる。しかしながら、厳密にはDecision Coverage（更にはMC/DCやMCCにも）には包含されない。なぜなら、`return`文のあとに到達不可能なStatementがある場合があるからである。しかしながら、このようなプログラムは保守性の観点から一般にはコーディングルール等の導入によって排除されるものであり、普通のコーディングにおいてはDecision CoverageがStatement Coverageを包含すると考えてよい。
 
 ```cpp
 void foo(bool a) {
@@ -88,10 +89,11 @@ void main () {
 
 ```
 
-
 ### C1カバレッジ
 
-Decision Coverageとする。
+Decision Coverageと定義する。これは、C/C++においては[`if`文、`switch`文、](https://timsong-cpp.github.io/cppwp/n4950/stmt.select)[`for`文、`while`文](https://timsong-cpp.github.io/cppwp/n4950/stmt.iter)のレベルで定義される[`condition`](https://timsong-cpp.github.io/cppwp/n4950/stmt.pre#nt:condition)について、それぞれの`true`と`false`が1回以上成立することと定義する。
+
+例えば、以下の例であれば`a && b`が`if`文の`condition`にあたり、`a`と`b`の個別の真偽については問わない。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -110,7 +112,15 @@ void main () {
 
 ### C2カバレッジ
 
-Condition Coverageとする。ただし、短絡評価を考慮せずに各条件が真・偽の2種類が入力されるだけで良しとするのか、短絡評価を考慮して評価されなかった条件についてはカバレッジの対象外とするかで結果が異なる。この記事においては、前者を"C2 (without short circuit)"、後者を"C2 (with short circuit)"とする。後者のほうがより厳しい条件である。
+Condition Coverageとする。これは、C/C++においては、`bool`と評価される`expression`の最小単位のそれぞれについて、`true`と`false`が少なくとも1回以上成立することと定義する。
+
+なお、C/C++では短絡評価が存在するため、ここでいう「成立」には以下の3種類の定義のされ方が考えられる。
+
+1. 各条件式への入力値によって**独立して**決定する
+2. C/C++が短絡評価が行わないと仮定した場合に、実際に各条件式が`true`と`false`に評価されるかどうか
+3. 短絡評価を考慮して、実際に各条件式が`true`と`false`に評価されるかどうか
+
+この中で、Condition Coverageとして巷でよく使われる定義は1.のようである（NASAも同じであった）。従って、1.による定義を本記事でも採用することとする。つまり、以下はC2カバレッジが網羅されることになる。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -129,6 +139,29 @@ void main () {
 }
 ```
 
+なお、今回のように1.の方式を採用する場合、以下のような先行する条件式の結果によって後続する条件式の結果が決まるような場合においてはカバレッジがどうなるかは定義されないことになる。（`x = a`は`x`よりも先に評価されるため、C/C++の言語規格上は合法なプログラムである）
+
+```cpp
+void foo(bool a) {
+    bool x;
+    if ((x = a) && x) { // x = aを評価するまで、xの真偽は決定しない
+        ...
+    }
+}
+```
+
+また、これを考慮して2.の方式を採用しようとすると、以下のように短絡評価を考慮しないとUBになるプログラムに対して、カバレッジが定義できないことになる。
+
+```cpp
+void foo(bool * a) {
+    if ((a != nullptr) && (*a)) { // aがnullptrである場合に右辺(*a)を評価するとUB
+        ...
+    }
+}
+```
+
+以上を考慮すると、あらゆるC/C++プログラムに対して、カバレッジが定義できるのは3.の方式ではあるものの、調べた限りではこれをCondition Coverageと定義している文献は見つからなかった。当然、この場合は以下のようにカバレッジの条件が厳しくなり、またC1カバレッジ(Decision coverage)も自動的に取れることになる。
+
 ```cpp
 void foo(bool a, bool b) {
     if (a && b) {
@@ -140,6 +173,8 @@ void main () {
     foo(true, true);
     foo(true, false);
     foo(false, false): // C2 coverage (with short circuit)
+                       // C1 coverage
+                       // C0 coverage
 }
 ```
 
