@@ -14,46 +14,31 @@ published: false
 
 ## はじめに
 
-ソフトウェアのテスト品質を図る指標の一つとして、コードカバレッジがある。
+ソフトウェアのテスト品質を図る指標の一つとして、コードカバレッジがある。コードカバレッジには分岐の網羅性や命令文の網羅性といったように様々な種類のものがあり、日本ではよく「C0」、「C1」、「C2」といった名称のカバレッジが登場する。この記事では、C0/C1/C2がそもそもどういうカバレッジであるかを説明し、その後にClangのsouce-based coverageで取得できるカバレッジとの対応関係について解説する。
 
 ## C0/C1/C2って何なのか
 
-まず、そもそもの話として「C0」「C1」「C2」の定義がどこから来ているのかから調査したが、意外なことに、これらの用語は、調べた限りにおいては、ISOなどの国際標準規格などでは定義されておらず、企業によってもその定義に揺らぎがあり、この記事の最後に参考として各社の定義を掲載した。
+まず、そもそもの話として「C0」「C1」「C2」の定義がどこから来ているのかから調査してみたが、これらの用語は調べた限りにおいては、ISOなどの国際標準規格などでは定義されておらず、企業によってもその定義に揺らぎがあることが分かった。この記事の最後に参考として各社がどのようにC0/C1/C2を定義していたかを掲載する。
 
-**特に、C2カバレッジについては「単純条件網羅」とするものと「複合条件網羅」としているものの2種類の流派がある。** これらは全く異なるカバレッジであることから、これらの用語を使うときは必ず定義を確認する必要がある。
+**特に、C2カバレッジについては「単純条件網羅」とするものと「複合条件網羅」としているものの2種類の流派がある。** これらは全く異なるカバレッジであることから、C2という用語を使うときは必ず定義を確認する必要がある。
 
-また、C2カバレッジを単純条件網羅と定義した場合でも、C/C++においては「[短絡評価](https://ja.wikibooks.org/wiki/%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/%E7%9F%AD%E7%B5%A1%E8%A9%95%E4%BE%A1#:~:text=%E7%9F%AD%E7%B5%A1%E8%A9%95%E4%BE%A1%EF%BC%88Short%2DCircuit%20Evaluation,%E6%80%A7%E3%82%92%E5%90%91%E4%B8%8A%E3%81%95%E3%81%9B%E3%81%BE%E3%81%99%E3%80%82)」が存在するため、短絡評価によって実際には評価されたなった条件をどう扱うかでまた違いが出てくる。
-
-その定義に揺らぎがある理由については、以下の記事が参考となった。
+なぜこのように定義に揺らぎがあるのか調べたところ、以下の記事が参考となった。どうやら当時考案した人が、何回かその定義を変えたことにより、定義に曖昧性があるまま世の中に広まってしまったということのようだ。
 
 > 現在、カバレッジの説明の際によく使われるC0やC1と呼ばれる基準は1975年頃にEdward Millerが提案したものです。ただ、Millerはこれらの基準の定義を何回か変更しているので、論文の発表時期により少しずつ定義が異なっています。
 
 http://a-lifelong-tester.cocolog-nifty.com/blog/2011/12/4-277e.html
 
-## ISTQBによる定義
+## NASAによるカバレッジの定義
 
-https://jstqb.jp/dl/JSTQB_CTAL-TTA_Syllabus_version2024.v4.0.J01.pdf
-
-## NASAによる定義
+C0/C1/C2という用語の定義には各業界で揺らぎがあり得ることが分かったので、もう少ししっかりと定義が統一されている名称のカバレッジをまず確認して、それとC0/C1/C2とを結びつけることにする。今回は、参照先としてNASAの文献を用いた。
 
 https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf
 
+### Statement Coverage (命令カバレッジ)
 
+実行可能な命令（executable statement）のそれぞれが少なくとも1回以上実行されることを指す。
 
-##
-
-![](/images/various-coverage/image.png)
-*NASAの文献p.7より抜粋*
-
-
-
-
-
-以上の事情から、この記事ではC0/C1/C2を以下のように定義する。
-
-### C0カバレッジ
-
-Statement Coverageと定義する。これは、C/C++で定義されるところの各statementが一度でも実行されたかどうかを指す。
+C/C++においては、例えばif文の条件部分(expression)はC/C++でいうところの"statement"ではないが、「実行」可能な単位ではあるためこれも母数に含めるとするのが安全側であると思われる。平たくいえば、すべての行が一度以上実行されることを意味する。
 
 
 ```cpp
@@ -64,36 +49,37 @@ void foo(bool a) {
 }
 
 void main () {
-    foo(true); // C0 coverage
-               // not C1 coverage
-               // not C2 coverage
+    foo(true); // Statement Coverage
+               // not Decision Coverage
+               // not Condition Coverage
 }
 ```
 
-多くの場合、後述するDecision Coverageが取れていれば、Statement Coverageも取れていることになる。しかしながら、厳密にはDecision Coverage（更にはMC/DCやMCCにも）には包含されない。なぜなら、`return`文のあとに到達不可能なStatementがある場合があるからである。しかしながら、このようなプログラムは保守性の観点から一般にはコーディングルール等の導入によって排除されるものであり、普通のコーディングにおいてはDecision CoverageがStatement Coverageを包含すると考えてよい。
+### Decision Coverage (判断カバレッジ)
+
+今後、"Condition"と"Decision"という2つのカバレッジに関する用語が出てくるので、まずその定義を確認する。NASAの上記の文献が引用しているDO-178Bによれば、
+
+> Condition – A Boolean expression containing no Boolean operators.
+
+> Decision – A Boolean expression composed of conditions and zero or more Boolean operators.  A decision without a Boolean operator is a condition.  If a condition appears more than once in a decision, each occurrence is a distinct condition. 
+
+となっており、和訳すれば
+
+- Condition: boolean演算子のないboolean式のこと (例:`true`)
+
+- Deicision: 1個以上のConditionと0個以上のboolean演算子から構成されるboolean式のこと。boolean演算子を含まないDeicisionは（Conditionの定義からして）Conditionである。あるConditionがDeicision内に複数登場する場合、それぞれが独立したConditionとして区別される。
+
+ということになる。
+
+「あるConditionがDeicision内に複数登場する場合、それぞれが独立したConditionとして区別される。」という部分には注意が必要である。例えば、
 
 ```cpp
-void foo(bool a) {
-    if (a) {
-        volatile int i = 0;
-    }
-    return;
-    volatile int j = 1; // UNREACHABLE!
-}
-
-void main () {
-    foo(true);
-    foo(false); // Decision, Condition, Condition/Decision, MC/DC, MCC coverage
-                // but not Statement Coverage!
-}
-
+(A && B) || (A || C)
 ```
 
-### C1カバレッジ
+というDecisionがある場合、1つ目のAと2つ目のAは"Condition"という観点では**区別される**。
 
-Decision Coverageと定義する。これは、C/C++においては[`if`文、`switch`文、](https://timsong-cpp.github.io/cppwp/n4950/stmt.select)[`for`文、`while`文](https://timsong-cpp.github.io/cppwp/n4950/stmt.iter)のレベルで定義される[`condition`](https://timsong-cpp.github.io/cppwp/n4950/stmt.pre#nt:condition)について、それぞれの`true`と`false`が1回以上成立することと定義する。
-
-例えば、以下の例であれば`a && b`が`if`文の`condition`にあたり、`a`と`b`の個別の真偽については問わない。
+Decision Coverageは、このように定義される"Deicision"について`true`と`false`がそれぞれ少なくとも1回以上成立することを意味する。例えば、以下の例であれば`a && b`が`if`文の"Decision"にあたり、`a`と`b`の個別の真偽については問わない。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -104,15 +90,33 @@ void foo(bool a, bool b) {
 
 void main () {
     foo(true, true);
-    foo(true, false); // C1 coverage
-                      // also C0 coverage
-                      // not C2 coverage
+    foo(true, false); // Decision Coverage
+                      // also Statement Coverage
+                      // not Condition Coverage
 }
 ```
 
-### C2カバレッジ
+なお、Decisionは必ずしもif文などの分岐を伴う文の条件である必要はない。例えば、上記の例を下記のように書き換えた場合、真偽値を中継する`c = a && b`において`a && b`がDecisionとなり、カバレッジの母数として考慮される。
 
-Condition Coverageとする。これは、C/C++においては、`bool`と評価される`expression`の最小単位のそれぞれについて、`true`と`false`が少なくとも1回以上成立することと定義する。
+```cpp
+void foo(bool a, bool b) {
+    bool c = a && b; // <- This is also a Decision
+    if (c) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(true, true);
+    foo(true, false); // Decision Coverage
+                      // also Statement Coverage
+                      // not Condition Coverage
+}
+```
+
+### Condition Coverage (条件カバレッジ)
+
+前述した"Condition"に対して、それぞれの真偽が少なくとも1回以上成立することと定義する。
 
 なお、C/C++では短絡評価が存在するため、ここでいう「成立」には以下の3種類の定義のされ方が考えられる。
 
@@ -120,22 +124,21 @@ Condition Coverageとする。これは、C/C++においては、`bool`と評価
 2. C/C++が短絡評価が行わないと仮定した場合に、実際に各条件式が`true`と`false`に評価されるかどうか
 3. 短絡評価を考慮して、実際に各条件式が`true`と`false`に評価されるかどうか
 
-この中で、Condition Coverageとして巷でよく使われる定義は1.のようである（NASAも同じであった）。従って、1.による定義を本記事でも採用することとする。つまり、以下はC2カバレッジが網羅されることになる。
+この中で、Condition Coverageとして巷でよく使われる定義は1.のようである（NASAも同じであった）。従って、1.による定義を本記事でも採用することとする。
 
 ```cpp
 void foo(bool a, bool b) {
     if (a && b) { // a==falseの場合、短絡評価によりbは評価されないため、
                   // b==trueは実際には評価されない
-        volatile int i = 0;
+        volatile int i = 0; // この行は実行されないため、Statement Coverageは取れない
     }
 }
 
 void main () {
     foo(true, false);
-    foo(false, true);  // C2 coverage (without short circuit),
-                       // not C0 coverage
-                       // not C1 coverage
-                       // not C2 coverage (with short circuit)
+    foo(false, true);  // Condition Coverage
+                       // not Statement Coverage
+                       // not Decision Coverage
 }
 ```
 
@@ -160,7 +163,7 @@ void foo(bool * a) {
 }
 ```
 
-以上を考慮すると、あらゆるC/C++プログラムに対して、カバレッジが定義できるのは3.の方式ではあるものの、調べた限りではこれをCondition Coverageと定義している文献は見つからなかった。当然、この場合は以下のようにカバレッジの条件が厳しくなり、またC1カバレッジ(Decision coverage)も自動的に取れることになる。
+以上を考慮すると、あらゆるC/C++プログラムに対して、カバレッジが定義できるのは3.の方式ではあるものの、調べた限りではこれをCondition Coverageと定義している文献は見つからなかった。当然、この場合は以下のようにカバレッジの条件が厳しくなり、またDecision coverageも自動的に取れることになる。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -172,17 +175,127 @@ void foo(bool a, bool b) {
 void main () {
     foo(true, true);
     foo(true, false);
-    foo(false, false): // C2 coverage (with short circuit)
-                       // C1 coverage
-                       // C0 coverage
+    foo(false, false): // Condition Coverage with short circuit consideration
+                       // Statement Coverage
+                       // Decision Coverage
 }
 ```
 
-## カバレッジの順位
+### Condition/Decision Coverage （条件/判断カバレッジ）
 
-C1カバレッジが取れている場合、すべての判断分岐上の命令が実行されることになるため、C0カバレッジが取れていることになる。また、C2を短絡評価を考慮した単純条件カバレッジとして定義する場合、
+Condition CoverageとDecision Coverageの両方が成立することを指す。
 
-C0 (Statement Coverage) = LLVM Line Coverage <= C1 <= C2 (with short circuit) = LLVM Branch Coverage < MCDC
+```cpp
+void foo(bool a, bool b) {
+    if (a && b) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(true, true);
+    foo(false, false); // Condition/Decision Coverage
+                       // Condition Coverage
+                       // Statement Coverage
+                       // Decision Coverage
+}
+```
+
+### Modified Condition/Decision Coverage (修正条件/判断カバレッジ)
+
+略して、MC/DCと呼ばれる。Conditionのそれぞれの真偽の変化が、それ単独でDecisionの真偽を変化させるようなテストケースの組み合わせが存在することであり、DO-178Bでは下記のように定義される。
+
+> Modified Condition/Decision Coverage - Every point of entry and exit in the program has been invoked at least once, every condition in a decision in the program has taken all possible outcomes at least once, every decision in the program has taken all possible outcomes at least once, and each condition in a decision has been shown to independently affect that decision’s outcome.  A condition is shown to independently affect a decision’s outcome by varying just that condition while holding fixed all other possible conditions.
+
+例えば、先ほどの「Condition/Decision Coverage」で提示した例においては、`(a, b) = {(true, true), (false, false)}`の組み合わせでは、
+
+```cpp
+void foo(bool a, bool b) {
+    if (a && b) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(true, true);
+    foo(true, false);
+    foo(false, true);  // Modified Condition/Decision Coverage
+                       // Condition/Decision Coverage
+                       // Condition Coverage
+                       // Statement Coverage
+                       // Decision Coverage
+}
+```
+
+前述したように、「あるConditionがDeicision内に複数登場する場合、それぞれが独立したConditionとして区別される。」のであった。つまり、このような状況にあるDecisionについては、真偽を共有しているConditionについて一方のConditionを固定して他方のConditionの真偽を変化させることは不可能であるため、MC/DCを取るためにはそうならないように等価なものに書き換える必要がある。
+
+```
+# MC/DCのためには同じConditionが複数登場するDecisionは、
+# そうならないように書き直さなければならない。
+a && a --> a
+a || !a --> true
+(a && b) || (a && c) --> a && (b || c)
+```
+
+なお、MC/DCが取れていれば論理演算におけるロジックの誤りが全くないことを示すことにはならない。例えば、以下の例ではMC/DCが取れているものの、`a || b`が`a != b`であっても同じ結果を生み出すものの、`foo(true, true)`を実行した場合には結果が異なる。従って、このようなケースを含めて論理演算の誤りがないことを完璧にテストケースで示すには後述するMultiple Condition Coverageを取らなければいけない。
+
+```cpp
+void foo(bool a, bool b) {
+    if (a != b) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(false, false);
+    foo(false, true);
+    foo(true, false);  // Modified Condition/Decision Coverage
+                       // Condition/Decision Coverage
+                       // Condition Coverage
+                       // Statement Coverage
+                       // Decision Coverage
+    // Above test case cannot distinguish `a or b` and `a not_eq b`.
+}
+```
+
+### Multiple Condition Coverage
+
+略して、MCCと呼ばれる。Conditionのそろぞれの真偽の組み合わせについて、すべての組み合わせについて実行されることである。つまり、Deicision内にConditionがN個あるのであれば、$2^N$個のテストケースが必要となる。テストケースが指数関数的に増大するため、複雑なDeicisionの場合は現実的でなくなることがある。そのため、品質が求められる業界であってもMCCではなくMC/DCまでが求められるケースが多い。
+
+### 各種カバレッジまとめ
+
+![](/images/various-coverage/image.png)
+*NASAの文献p.7より抜粋*
+
+大雑把に見れば、右側に行くほど強い。ただ、前述したサンプルコードでも分かるように、Deicision CovaregeとContion Coverageについては一方がもう片方を包含するという関係にはない。
+
+更によく見ると、Deicision Coverage ~ Multiple Condition Coverageは必ずしもStatement Coverageを意味しない。なぜなら、例えば`return`文のあとに到達不可能なStatementを定義することが可能であるからだ。しかしながら、このようなプログラムは保守性の観点から一般にはコーディングルール等の導入によって排除されるものであり、普通のコーディングにおいてはDecision CoverageがStatement Coverageを包含すると考えてよい。
+
+```cpp
+void foo(bool a) {
+    if (a) {
+        volatile int i = 0;
+    }
+    return;
+    volatile int j = 1; // UNREACHABLE!
+}
+```
+
+## C0/C1/C2カバレッジの定義
+
+以上の事情から、この記事ではC0/C1/C2を以下のように定義する。
+
+### C0カバレッジ
+
+Statement Coverageと定義する。
+
+### C1カバレッジ
+
+Decision Coverageと定義する。
+
+### C2カバレッジ
+
+Condition Coverageとする。
 
 ## Clangのカバレッジ
 
