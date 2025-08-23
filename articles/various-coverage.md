@@ -346,11 +346,25 @@ Decision Coverageと定義する。
 
 ### C2カバレッジ
 
-Condition Coverageとする。
+Condition Coverageと定義する。
 
 ## Clangのカバレッジ
 
-ClangのMC/DCカバレッジ機能は、Masked MC/DCを取得できる。
+### Function Coverage
+
+### Line Coverage
+
+Statement Coverageである。
+
+### Region Coverage
+
+### (Clang) Branch Coverage
+
+前述したBranch Coverageとは異なり、こちらは短絡評価を考慮したCondition Coverageである。
+
+### MC/DC
+
+Masking MC/DCである。
 
 ## 補足：各社によるC0/C1/C2の定義
 
