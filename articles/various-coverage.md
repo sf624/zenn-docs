@@ -55,13 +55,34 @@ void main () {
 }
 ```
 
+### Branch Coverage (分岐カバレッジ)
+
+if文などのstatementの分岐点において、真偽のどちらのパスも通過することを指す。
+
+
+```cpp
+void foo(bool a, bool b) {
+    if (a && b) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(true, true);
+    foo(true, false); // Branch Coverage
+                      // also Decision Coverage
+                      // also Statement Coverage
+                      // not Condition Coverage
+}
+```
+
 ### Decision Coverage (判断カバレッジ)
 
 今後、"Condition"と"Decision"という2つのカバレッジに関する用語が出てくるので、まずその定義を確認する。NASAの上記の文献が引用しているDO-178Bによれば、
 
 > Condition – A Boolean expression containing no Boolean operators.
 
-> Decision – A Boolean expression composed of conditions and zero or more Boolean operators.  A decision without a Boolean operator is a condition.  If a condition appears more than once in a decision, each occurrence is a distinct condition. 
+> Decision – A Boolean expression composed of conditions and zero or more Boolean operators. A decision without a Boolean operator is a condition. If a condition appears more than once in a decision, each occurrence is a distinct condition. 
 
 となっており、和訳すれば
 
@@ -79,7 +100,14 @@ void main () {
 
 というDecisionがある場合、1つ目のAと2つ目のAは"Condition"という観点では**区別される**。
 
-Decision Coverageは、このように定義される"Deicision"について`true`と`false`がそれぞれ少なくとも1回以上成立することを意味する。例えば、以下の例であれば`a && b`が`if`文の"Decision"にあたり、`a`と`b`の個別の真偽については問わない。
+Decision Coverageは、このように定義される"Deicision"に対してDO-178Bにおいて、
+
+> Decision Coverage - Every point of entry and exit in the program has been invoked at least once and every decision in the program has taken on all possible outcomes at least once.
+
+と定義される。
+
+`true`と`false`がそれぞれ少なくとも1回以上成立することを意味する。例えば、以下の例であれば`a && b`が`if`文の"Decision"にあたり、`a`と`b`の個別の真偽については問わない。
+
 
 ```cpp
 void foo(bool a, bool b) {
@@ -96,7 +124,7 @@ void main () {
 }
 ```
 
-なお、Decisionは必ずしもif文などの分岐を伴う文の条件である必要はない。例えば、上記の例を下記のように書き換えた場合、真偽値を中継する`c = a && b`において`a && b`がDecisionとなり、カバレッジの母数として考慮される。
+なお、Decisionは必ずしもif文などの分岐を伴う文の条件である必要はなく、代入文などについても適用される。例えば、上記の例を下記のように書き換えた場合、真偽値を中継する`c = a && b`において`a && b`がDecisionとなり、カバレッジの母数として考慮される。
 
 ```cpp
 void foo(bool a, bool b) {
@@ -113,6 +141,29 @@ void main () {
                       // not Condition Coverage
 }
 ```
+
+**ここが単純な分岐網羅を考えるBranch Coverageとの大きな違いである。** 例えば、以下のようなコードを考えると、`d`は`true`しか取っていないのでDecision Coverageは成立していない。しかしながら、`if`文の分岐については真偽の両方のパスが成立するため、Branch Coverageは成立する。
+
+```cpp
+void foo(bool a, bool b, bool c) {
+    bool d = a && b;
+    if (c && d) {
+        volatile int i = 0;
+    }
+}
+
+void main () {
+    foo(true, true, true);
+    foo(true, true, false); // Branch Coverage
+                            // not Decision Coverage
+                            // also Statement Coverage
+                            // not Condition Coverage
+}
+```
+
+このようにDO-178Bが定義する"Decision"に従うと、Decisin Coverage (DC)はBranch Coverageと異なるのだが、一部の業界では"Decision"を"Branchpoint"として定義しており、結果として"Decision Coverage"と"Branch Coverage"を同一視する場合がある。このような事情については、以下の文献でよく説明されている。兎にも角にも、本文献においては上述したように、DO-178Bが定義する"Decision"に従って、Decision Coverageを定義する。
+
+https://people.eecs.ku.edu/~saiedian/Teaching/814/Readings/structural-testing-mcdc.pdf
 
 ### Condition Coverage (条件カバレッジ)
 
@@ -205,7 +256,7 @@ void main () {
 
 略して、MC/DCと呼ばれる。Conditionのそれぞれの真偽の変化が、それ単独でDecisionの真偽を変化させるようなテストケースの組み合わせが存在することであり、DO-178Bでは下記のように定義される。
 
-> Modified Condition/Decision Coverage - Every point of entry and exit in the program has been invoked at least once, every condition in a decision in the program has taken all possible outcomes at least once, every decision in the program has taken all possible outcomes at least once, and each condition in a decision has been shown to independently affect that decision’s outcome.  A condition is shown to independently affect a decision’s outcome by varying just that condition while holding fixed all other possible conditions.
+> Modified Condition/Decision Coverage - Every point of entry and exit in the program has been invoked at least once, every condition in a decision in the program has taken all possible outcomes at least once, every decision in the program has taken all possible outcomes at least once, and each condition in a decision has been shown to independently affect that decision’s outcome. A condition is shown to independently affect a decision’s outcome by varying just that condition while holding fixed all other possible conditions.
 
 例えば、先ほどの「Condition/Decision Coverage」で提示した例においては、`(a, b) = {(true, true), (false, false)}`の組み合わせでは、
 
@@ -299,29 +350,37 @@ Condition Coverageとする。
 
 ## Clangのカバレッジ
 
-
+ClangのMC/DCカバレッジ機能は、Masked MC/DCを取得できる。
 
 ## 補足：各社によるC0/C1/C2の定義
 
 用語についても各社で揺らぎがあったり、同じ用語であっても言葉の定義が異なるということがあったため、NASAの[文献](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf)で用いられている用語とその定義で統一して記載する。（例えば、NASAでいう"Multiple Condition Coverage"を、VECTORでは"Condition Coverage"と呼称していた）
 
-C0とC1についてはほとんど差異が見られないが、C2の定義についてはかなりの違いがあり、主にCondition Coverageとする流派とMuptiple Condition Coverage (MCC)とする流派の2つが目立った。前述したように、Condition CoverageであればMC/DCよりも遥かに弱いカバレッジであるのに対して、MCCはMC/DCよりも強いカバレッジであり、レベル感が全く異なる。
+C0とC1はほとんどの文献でそれぞれ"Statement Coverage"と"Branch Coverage"と定義しており差異が見られないが、C2の定義についてはかなりの違いがあり、主にCondition Coverageとする流派とMuptiple Condition Coverage (MCC)とする流派の2つが目立った。前述したように、Condition CoverageであればMC/DCよりも遥かに弱いカバレッジであるのに対して、MCCはMC/DCよりも強いカバレッジであり、レベル感が全く異なる。
 
 | 出典 | C0 Coverage | C1 Coverage | C2 Coverage |
 | - | :-: | :-: | :-: |
-| [テクマトリクス](https://www.techmatrix.co.jp/t/quality/coverage.html) | Statement Coverage | Decision Coverage | Condition Coverage |
-| [Sky](https://www.skygroup.jp/tech-blog/article/610/) | Statement Coverage | Decision Coverage | Path Coverage?[^sky] |
-| [SHIFT](https://service.shiftinc.jp/column/4547/) | Statement Coverage | Decision Coverage | **Multiple Condition Coverage** |
-| [NRI Netcom](https://tech.nri-net.com/entry/coverage_c0_c1_c2_mcc) | Statement Coverage | Decision Coverage | Condition Coverage |
-| [ガイオ・テクノロジー](https://www.gaio.co.jp/gaioclub/glossary_blog05/#col02-1) | Statement Coverage | Decision Coverage | Condition Coverage?[^gaio] |
-| [QBOOK](https://www.qbook.jp/column/632.html) | Statement Coverage | Decision Coverage | **Multiple Condition Coverage** |
-| [computex](https://www.computex.co.jp/products/technology/coverage/index.htm) | Statement Coverage | ?[^computex] | ?[^computex] |
-| [AGEST](https://agest.co.jp/column/2021-09-24/) | Statement Coverage | Decision Coverage | Condition Coverage |
-| [MONOist](https://monoist.itmedia.co.jp/mn/articles/1610/20/news009.html) | Statement Coverage | Deicision Coverage | **Multiple Condition Coverage** |
-| [VECTOR](https://www.vector.com/jp/ja/know-how/vj-columns/vj-software-testing/vj-columns220330/#c289232) | Statement Coverage  | Deicision Coverage | **Multiple Condition Coverage** |
+| [テクマトリクス](https://www.techmatrix.co.jp/t/quality/coverage.html) | Statement Coverage | Branch Coverage | Condition Coverage |
+| [Sky](https://www.skygroup.jp/tech-blog/article/610/) | Statement Coverage | Branch Coverage | Path Coverage?[^sky] |
+| [SHIFT](https://service.shiftinc.jp/column/4547/) | Statement Coverage | Branch Coverage[^branch-and-decision] | **Multiple Condition Coverage** |
+| [NRI Netcom](https://tech.nri-net.com/entry/coverage_c0_c1_c2_mcc) | Statement Coverage | Branch Coverage | Condition Coverage |
+| [ガイオ・テクノロジー](https://www.gaio.co.jp/gaioclub/glossary_blog05/#col02-1) | Statement Coverage | Branch Coverage | Condition Coverage?[^gaio] |
+| [QBOOK](https://www.qbook.jp/column/632.html) | Statement Coverage | Branch Coverage[^branch-and-decision] | **Multiple Condition Coverage** |
+| [computex](https://www.computex.co.jp/products/technology/coverage/index.htm) | アセンブラレベルでのStatement Coverage | ?[^computex] | アセンブラレベルでのBranch Coverage |
+| [AGEST](https://agest.co.jp/column/2021-09-24/) | Statement Coverage | Branch Coverage[^branch-and-decision] | Condition Coverage |
+| [MONOist](https://monoist.itmedia.co.jp/mn/articles/1610/20/news009.html) | Statement Coverage | Branch Coverage | **Multiple Condition Coverage** |
+| [VECTOR](https://www.vector.com/jp/ja/know-how/vj-columns/vj-software-testing/vj-columns220330/#c289232) | Statement Coverage  | Branch Coverage | **Multiple Condition Coverage** |
+
+[^branch-and-decision]: 元の文献にはDecision Coverageと書いているが、Branch CoverageとDecision Coverageを同一視しており、本記事で説明した"literal"なDecision Coverageとは定義が異なる。従って、"Branch Coverage"をここでは用語として用いる。
 
 [^sky]: C2の定義を「条件式間のコードパスの全ての組み合わせ」としており、NASAは言及していないが、いわゆる"Path Coverage"であると判断した。
 
 [^gaio]: 出典の説明が曖昧であり、Condition Coverageかどうかの判断が難しかった。
 
-[^computex]: 出典には「分岐網羅」、「条件網羅」とそれぞれ記載があるが、説明文を見ると普通の定義のされ方と違うように見えることから?とした。
+[^computex]: 出典には「分岐網羅」とあるが、その定義は分岐判定が真が成立したかどうかであり、真偽の両方は考慮しないとしている。
+
+## その他参考文献
+
+https://maskray.me/blog/2024-01-28-mc-dc-and-compiler-implementations
+
+
