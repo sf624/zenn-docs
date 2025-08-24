@@ -309,6 +309,78 @@ void main () {
 }
 ```
 
+また、MC/DCには以下の3つのバリエーションがあるとされている[^masking]。
+
+[^masking]: https://www.faa.gov/sites/faa.gov/files/aircraft/air_cert/design_approvals/air_software/AR-01-18_MCDC.pdf
+
+1. Unique-Cause MCDC
+
+   DO-178Bで用いられる定義である。
+
+2. Unique-Cause + Masking MCDC
+3. Masking MCDC
+
+上に行くほど、強い制約となっている。
+
+例えば、以下のようなDecisionを考えてみる。
+
+```cpp
+a || b
+```
+
+Unique-Cuase MC/DCの場合は、文字通り他の条件を固定した上で、ある一つの条件が結果に影響を及ぼすことを評価しなければならない。例えば`a`が結果に独立して影響を与えることを示すためには、`b`を固定する必要があるが、この場合`b`は`false`に固定しなければならない。従って、以下の2つのテストケースが`a`の影響を評価する上で必要となる。
+
+```cpp
+(a, b) = {(T, F), (F, F)}
+```
+
+対して、Masking MC/DCでは短絡評価を考慮して、**短絡される側については「固定する」という制約を課さない**。つまり、`a`が`true`のときには`b`の値は何でもよいため、以下のような`a`と`b`が両方変化してしまうテストケースであっても、`a`が独立して影響を及ぼすテストケースのペアとして認められる。
+
+```cpp
+(a, b) = {(T, T), (F, F)}
+```
+
+また、`b`側については、Unique-CauseであろうがMaskingであろうが、
+
+```cpp
+(a, b) = {(F, T), (F, F)}
+```
+
+の2つのテストケースが存在しなければならない。従って、以上をまとめると
+
+```cpp
+// Applicable to both Unique-Cause MCDC and Masking MCDC
+(a, b) = {(T, F), (F, F), (F, T)}
+
+// Applicable "only" to Masking MCDC
+(a, b) = {(T, T), (F, F), (F, T)}
+```
+
+のように、一方のテストケースではUnique-Case MCDCもMasking MCDCも達成するが、別のテストケースではMasking MCDCしか達成しないというような違いが出てくる。
+
+Unique-Cause + Masking MCDCは、Maskingしてよい条件が"Strongly Coupled"である場合に限られる。例えば、
+
+```cpp
+(a && b) || (a && c)
+```
+
+というDecisionがあるときに、Decisionの定義からすると1つめと2つめの`a`はConditionとして区別される。しかしながら、これらの`a`は共通の真偽値を持つため、字面通り片方を固定してもう片方だけを操作するUnique-Cause MCDCは達成が不可能である。
+
+このような"Strongly Coupled"の条件下においては、本来固定すべき片方を（短絡評価によって）MaskingしてもよいというのがUnique-Cause + Masking MCDCが述べているところである。つまり、
+
+```cpp
+(a, b, c) = {(T, T, F), (F, T, F)}
+```
+
+が1つめの`a`について独立に結果に影響を及ぼすことを示すテストケースのペアとしてよく、
+
+```cpp
+(a, b, c) = {(T, F, T), (F, F, T)}
+```
+
+が2つめの`a`について独立に結果に影響を及ぼすことを示すテストケースのペアとしてよい。
+
+
 ### Multiple Condition Coverage
 
 略して、MCCと呼ばれる。Conditionのそろぞれの真偽の組み合わせについて、すべての組み合わせについて実行されることである。つまり、Deicision内にConditionがN個あるのであれば、$2^N$個のテストケースが必要となる。テストケースが指数関数的に増大するため、複雑なDeicisionの場合は現実的でなくなることがある。そのため、品質が求められる業界であってもMCCではなくMC/DCまでが求められるケースが多い。
@@ -364,7 +436,9 @@ Statement Coverageである。
 
 ### MC/DC
 
-Masking MC/DCである。
+Masking MC/DCである[^llvm-masking]。
+
+[^llvm-masking]: https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#:~:text=or%20they%20are%20masked%20out%20as%20unevaluatable
 
 ## 補足：各社によるC0/C1/C2の定義
 
