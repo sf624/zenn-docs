@@ -800,7 +800,7 @@ P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + G_k Q_k G_k^T
 $$
 
 $$
-F_k \triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}, G_k \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k}
+F_k \triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}, G_k \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}
 $$
 
 のようにすることで、状態量$\bm{x}$の誤差共分散行列$P$を更新することができる。
@@ -1040,7 +1040,7 @@ Joan Solà氏の『[A micro Lie theory for state estimation in robotics](https:/
 
 #### リー群の誤差共分散行列
 
-まず、カルマンフィルタを適用するにあたっては、推定すべき状態量$T$の確率分布がガウス分布に近似できると仮定して、その誤差共分散行列を$P$と置く必要がある。しかしながら、$T$はリー群でありこのままではパラメータ数が過剰である。従って、$T$の期待値を$\bar{T}$としたときに$T$と$\bar{T}$の差をリー代数で表現したものに対して誤差共分散行列を定義する。つまり、$P=\mathbb{E}[(T\ominus\bar{T})(T\ominus\bar{T})^T]$と定義する。
+まず、カルマンフィルタを適用するにあたっては、推定すべき状態量$T$の確率分布がガウス分布に近似できると仮定して、その誤差共分散行列を$P$と置く必要がある。しかしながら、$T$はリー群でありこのままではパラメータ数が過剰である。また、リー群はベクトル空間ではなく和が定義されないため、$T$の期待値や差もそのままでは定義できない。そこで、真の状態$T$を、推定値（ノミナル状態）$\hat{T}$と、その接空間における誤差$\delta\bm{\xi}$を用いて$T = \hat{T} \oplus \delta\bm{\xi}$と表す。そして、$\delta\bm{\xi} \sim \mathcal{N}(\bm{0}, P)$と仮定し、この$\delta\bm{\xi}$の共分散行列を誤差共分散行列とする。つまり、$P=\mathbb{E}[\delta\bm{\xi}\,\delta\bm{\xi}^T]=\mathbb{E}[(T\ominus\hat{T})(T\ominus\hat{T})^T]$と定義する。
 
 #### 時間発展モデル
 
@@ -1088,39 +1088,39 @@ $$
 \bm{x}_k = f(\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k)
 $$
 
-という非線形の状態方程式が与えられ、これを右辺の状態の周りで線形化すると、
+という非線形の状態方程式が与えられ、これを推定値$\hat{\bm{x}}_{k-1|k-1}$とノイズの平均$\bm{0}$の周りで線形化すると、
 
 $$
-\delta\bm{x}_k = \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k}  \delta\bm{x}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k} \delta\bm{w}_k
+\delta\bm{x}_k = \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}  \delta\bm{x}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta\bm{w}_k
 $$
 
 という摂動の関係が得られることから、線形カルマンフィルタの場合と比較して
 
 $$
 \begin{align*}
-F_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{0}}
+F_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}
 \\
-G_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{0}}
+G_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}
 \end{align*}
 $$
 
-とすることで、線形カルマンフィルタと同じ更新則を用いて$P$を更新することができる。（なお、$\bm{w}$はホワイトノイズであるので、ヤコビ行列の引数の$\bm{w}_k$の実現値としては$\bm{0}$を代入する。）
+とすることで、線形カルマンフィルタと同じ更新則を用いて$P$を更新することができる。（なお、真の状態$\bm{x}_{k-1}$や$\bm{w}_k$の実現値は分からないため、それぞれの最良推定値の周りで線形化する。$\bm{w}$は平均$\bm{0}$のノイズであり、その最良推定値は$\bm{0}$であるので、ヤコビ行列の引数の$\bm{w}_k$には$\bm{0}$を代入する。）
 
-以上の拡張カルマンフィルタと同じ考え方で、我々は時間発展モデルである(3)式を線形化したい。しかしながら、(3)式の$f$はリー群の要素$T$を引数として取る関数であり、上記と全く同じ手法で$f$を$T$で微分すると前述したような過剰なパラメータが発生することになり都合が悪い。そこで、$T$の摂動をリー代数（のベクトル表示）である$\bm{\xi}$を用いて$T \oplus \delta \bm{\xi}$のようにして捉えて、**$T$の近傍におけるリー代数の世界で表現した摂動**を考える。すると、(3)式の$T$近傍でのリー代数における摂動は、
-
-$$
-\delta\bm{\xi}_k = \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{w}_k} \delta \bm{\xi}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{w}_k} \delta \bm{w}_k \qquad (\bm{\xi}_{k-1} \triangleq \operatorname{Log}(T_{k-1}))
-$$
-
-となる。この関係式を拡張カルマンフィルタに採用しよう。すると、リー代数$\xi$が$T$の周りで表現した誤差を表す状態量となり、
+以上の拡張カルマンフィルタと同じ考え方で、我々は時間発展モデルである(3)式を線形化したい。しかしながら、(3)式の$f$はリー群の要素$T$を引数として取る関数であり、上記と全く同じ手法で$f$を$T$で微分すると前述したような過剰なパラメータが発生することになり都合が悪い。そこで、真の状態を推定値$\hat{T}$の周りの摂動として、リー代数（のベクトル表示）である$\delta\bm{\xi}$を用いて$T = \hat{T} \oplus \delta \bm{\xi}$のようにして捉えて、**$\hat{T}$の近傍におけるリー代数の世界で表現した摂動**を考える。すると、(3)式の$\hat{T}$近傍でのリー代数における摂動は、
 
 $$
-P \leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}} \right)
+\delta\bm{\xi}_k = \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta \bm{\xi}_{k-1} + \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta \bm{w}_k
 $$
 
-という更新式が得られる。ここで注意したいのは$P$はもはや$T$そのものの誤差共分散行列ではなく、そのときの$T$の接空間におけるリー代数で表現された誤差共分散行列となっており、$T$の期待値を$\bar{T}$とすれば$P=\mathbb{E}[(T\ominus\bar{T})(T\ominus\bar{T})^T]$ということになる。普通のカルマンフィルタであれば、$P=\mathbb{E}[(\bm{x}-\bar{\bm{x}})(\bm{x}-\bar{\bm{x}})^T]$であり、$\ominus$を導入したことにより普通の場合とのアナロジーが取りやすくなっている。
+となる。この関係式を拡張カルマンフィルタに採用しよう。すると、リー代数$\delta\bm{\xi}$が$\hat{T}$の周りで表現した誤差を表す状態量となり、
 
-なお、このように元の状態量に対して偏微分を計算して線形化を施すのではなく、元の状態量の（ノミナル状態との）誤差を状態量と別に見なしてその周りで線形化を施すことでカルマンフィルタを構成するものを、「誤差状態カルマンフィルタ（ESKF: Error state Kalman filter）」ないしは「誤差状態拡張カルマンフィルタ（ES-EKF：Error state extended Kalman filter）」と呼ぶ。
+$$
+P \leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \right)
+$$
+
+という更新式が得られる。ここで注意したいのは$P$はもはや$T$そのものの誤差共分散行列ではなく、推定値$\hat{T}$の接空間におけるリー代数で表現された誤差$\delta\bm{\xi}$の共分散行列となっており、$P=\mathbb{E}[(T\ominus\hat{T})(T\ominus\hat{T})^T]$ということになる。普通のカルマンフィルタであれば、$P=\mathbb{E}[(\bm{x}-\hat{\bm{x}})(\bm{x}-\hat{\bm{x}})^T]$であり、$\ominus$を導入したことにより普通の場合とのアナロジーが取りやすくなっている。
+
+なお、このように元の状態量に対して偏微分を計算して線形化を施すのではなく、元の状態量のノミナル状態（推定値$\hat{T}$）との誤差$\delta\bm{\xi}$を状態量と別に見なし、ノミナル状態の周りで線形化を施すことでカルマンフィルタを構成するものを、「誤差状態カルマンフィルタ（ESKF: Error state Kalman filter）」ないしは「誤差状態拡張カルマンフィルタ（ES-EKF：Error state extended Kalman filter）」と呼ぶ。
 
 また、推定値$\hat{T}$そのものの時間更新は、時間発展モデルから
 
@@ -1136,7 +1136,7 @@ $$
 \begin{align*}
 \hat{T} &\leftarrow \hat{T} \oplus \bm{u}_i
 \\
-P &\leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}} \right)
+P &\leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \right)
 \end{align*}
 $$
 
@@ -1150,7 +1150,7 @@ $$
 $F$の具体的な形は
 
 $$
-F = \left.\dfrac{D f}{D T}\right|_{\bm{\xi}, \bm{u}, \bm{0}} = \left.\dfrac{D (T \oplus (\bm{u} + \bm{w}))}{D T}\right|_{\bm{\xi}, \bm{u}, \bm{0}} = \mathrm{Ad}_{\operatorname{Exp}(\bm{u})}^{-1}
+F = \left.\dfrac{D f}{D T}\right|_{\hat{T}, \bm{u}, \bm{0}} = \left.\dfrac{D (T \oplus (\bm{u} + \bm{w}))}{D T}\right|_{\hat{T}, \bm{u}, \bm{0}} = \mathrm{Ad}_{\operatorname{Exp}(\bm{u})}^{-1}
 $$
 
 であり、随伴行列$\mathrm{Ad}_T$は、$T = \begin{bmatrix}R&\bm{t}\\\bm{0}&1\end{bmatrix}$と置くと、
@@ -1235,30 +1235,30 @@ $$
 \bm{z}_k = h(\bm{x}_k) + \bm{v}_k
 $$
 
-という非線形の観測方程式が与えられ、右辺の状態で微分を取ることで、
+という非線形の観測方程式が与えられ、予測値$\hat{\bm{x}}_{k|k-1}$の周りで微分を取ることで、
 
 $$
-\delta {z}_k = \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\bm{x}_k, \bm{v}_k} \delta \bm{x}_{k} + \delta \bm{v}_{k}
+\delta {z}_k = \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k|k-1}, \bm{0}} \delta \bm{x}_{k} + \delta \bm{v}_{k}
 $$
 
 という摂動の関係が得られることから、線形カルマンフィルタの場合と比較して
 
 $$
-H_k \triangleq \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\bm{x}_k, \bm{0}}
+H_k \triangleq \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k|k-1}, \bm{0}}
 $$
 
 とすることで、同じ更新則が適用できるのであった。
 
-以上の拡張カルマンフィルタと同じ考え方で、我々は観測モデルである(4)式を線形化したい。しかしながら、(4)式の$h$はリー群の要素$T$を引数として取る関数であり、時間発展モデルの線形化のときと同じ問題に直面する。そこで先ほどと同様にして、(4)式の$T$の近傍でのリー代数における摂動を考えると、
+以上の拡張カルマンフィルタと同じ考え方で、我々は観測モデルである(4)式を線形化したい。しかしながら、(4)式の$h$はリー群の要素$T$を引数として取る関数であり、時間発展モデルの線形化のときと同じ問題に直面する。そこで先ほどと同様にして、真の状態を$T = \hat{T}_{k|k-1} \oplus \delta\bm{\xi}_k$と表し、(4)式の予測値$\hat{T}_{k|k-1}$の近傍でのリー代数における摂動を考えると、
 
 $$
-\delta z_k = \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \delta \xi + \delta \bm{n}
+\delta z_k = \left.\dfrac{D h}{D T}\right|_{\hat{T}_{k|k-1}} \delta \bm{\xi}_k + \delta \bm{n}
 $$
 
 となり、この表現において拡張カルマンフィルタと同様の手続きを踏むことが可能となり、
 
 $$
-S = R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \right)
+S = R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\hat{T}_{k|k-1}} \right)
 $$
 
 のようにして、観測残差の共分散$S$が計算できるようになる。
@@ -1271,6 +1271,10 @@ $$
 
 となる。
 
+なお、厳密には、更新後の$P$は更新前の$\hat{T}$の接空間で表現された共分散のままである。これを更新後の$\hat{T} \oplus K\bm{e}$の接空間に移すには、リセットのヤコビ行列$J_r(K\bm{e})$を用いて$P \leftarrow J_r(K\bm{e}) P J_r(K\bm{e})^T$とする必要がある[^eskf-reset]。ただし、$K\bm{e}$は小さいため$J_r(K\bm{e}) \approx I$と近似されることが多く、本稿でもこの近似に従う。
+
+[^eskf-reset]: Joan Solà, "[Quaternion kinematics for the error-state Kalman filter](https://arxiv.org/abs/1711.02508)"の6.3節（ESKF reset）を参照。更新後の誤差は$\delta\bm{\xi}^+ = \operatorname{Log}(\operatorname{Exp}(K\bm{e})^{-1}\operatorname{Exp}(K\bm{e} + \delta\bm{\xi})) \approx J_r(K\bm{e})\,\delta\bm{\xi}$となることから導かれる。
+
 以上をまとめると、更新ステップは下記のようになる[^diff-with-sola]。
 
 [^diff-with-sola]: [Joan Sola, et al.](https://arxiv.org/abs/1812.01537)では、$P \leftarrow P - KSK^T$の形の更新則を用いているが、$KSK^T = PH^TS^{-1}HP = KHP$よりこれらは等価である。
@@ -1279,7 +1283,7 @@ $$
 \begin{align*}
 \bm{e} &= \bm{z}_k - \hat{T}^{-1} \cdot \bm{b}_k
 \\
-S &= R + HPH^T \quad \left( H \triangleq \dfrac{D h}{D T}\right)
+S &= R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\hat{T}}\right)
 \\
 K &= P H^T S^{-1}
 \\
@@ -1296,7 +1300,7 @@ $$
 $H$の具体的な形は
 
 $$
-H = \dfrac{D h}{D T} = \dfrac{D (T^{-1} \cdot \bm{b}_k)}{D T} =
+H = \left.\dfrac{D h}{D T}\right|_{\hat{T}} = \left.\dfrac{D (T^{-1} \cdot \bm{b}_k)}{D T}\right|_{\hat{T}} =
 -
 \begin{bmatrix}
 I & R^T [1]_\wedge (\bm{b}_k - \bm{t})
