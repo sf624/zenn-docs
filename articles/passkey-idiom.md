@@ -42,7 +42,7 @@ class G; // 前方宣言
 
 class F {
     int data_;
-    int data_really_private_; // こっちはGでも見れない
+    int data_really_private_; // こっちはGでも見られない
 public:
     int get_data(Passkey<G>) const { // GのPasskeyを要求する
          return data_; 
@@ -68,7 +68,7 @@ public:
 };
 ```
 
-C++20以降は、集成体初期化の仕様が変更されたことから、explicit指定がなくてもよくなりました。また、Passkeyを作成するクラスが特定されているのであれば、特にテンプレートにする必要は必ずしもないです。
+C++20以降は、集成体初期化の仕様が変更されたことから、explicit指定がなくてもよくなりました。また、Passkeyを作成するクラスが特定されているのであれば、テンプレートにする必要は必ずしもありません。
 
 ```cpp
 class G;
