@@ -45,7 +45,7 @@ published_at: "2025-07-23 01:28"
 
 ## 読み進め方ガイド
 
-元々はより短い記事とするつもりだったが、色々と説明を加えていくうちにかなりのボリュームとなってしまった。最終的には、リー群のテクニックを用いた最適化演算などについて説明をするが、この分野に全く新しい方からすると新しい概念がどんどん登場して圧倒されて終わるだけになると思うので、以下に示すような章で一旦休憩してそこまでの概念を十分理解してから、次に進むようにして頂ければと良いと思われる。
+元々はより短い記事とするつもりだったが、色々と説明を加えていくうちにかなりのボリュームとなってしまった。最終的には、リー群のテクニックを用いた最適化演算などについて説明をするが、この分野に全く新しい方からすると新しい概念がどんどん登場して圧倒されて終わるだけになると思うので、以下に示すような章で一旦休憩してそこまでの概念を十分理解してから、次に進むようにして頂ければ良いと思われる。
 
 1. そもそもポーズとは何かだったり、ポーズを座標変換行列として表現することに馴染みのない読者
 
@@ -83,7 +83,7 @@ published_at: "2025-07-23 01:28"
 - $\exp(\cdot)$：指数写像。特にリー群の文脈においては、リー代数を対応するリー群に変換する。
 - $\log(\cdot)$：対数写像。特にリー群の文脈においては、リー群を対応するリー代数に変換する。
 - $\operatorname{Exp}(\cdot)$：拡張された指数写像。リー代数のベクトル表示を直接、リー群に変換するものとして定義する。つまり、$\operatorname{Exp}(\cdot) \triangleq \exp([\cdot]_\wedge)$である。元の指数写像と区別するために、大文字のEを用いる。
-- $\operatorname{Log}(\cdot)$：拡張された対数写像。リー群を直接、リー代数のベクトル表示に変換するものとして定義する。つまり、$\operatorname{Log}(\cdot) \triangleq (\log(\cdot))^\vee$である。元の指数写像と区別するために、大文字のLを用いる。
+- $\operatorname{Log}(\cdot)$：拡張された対数写像。リー群を直接、リー代数のベクトル表示に変換するものとして定義する。つまり、$\operatorname{Log}(\cdot) \triangleq (\log(\cdot))^\vee$である。元の対数写像と区別するために、大文字のLを用いる。
 - $\oplus$：リー群とリー代数のベクトル表示との和を表す二項演算子であり、後者については対応するリー代数に変換したものを前者と合成するものとする。つまり、$X \oplus y\triangleq X (\operatorname{Exp} y), y \oplus X\triangleq (\operatorname{Exp} y) X$である。
     - 文献によっては、これを$\boxplus$と表記するものもある。
 - $\ominus$：2つのリー群の差を、対応するリー代数のベクトル表示として表す二項演算子であり、$\mathcal{Y} \ominus \mathcal{X} \triangleq \operatorname{Log}(\mathcal{X}^{-1} \mathcal{Y})$である。
@@ -164,9 +164,9 @@ $$
 \begin{bmatrix}\bm{x}_{global}\\ 1 \end{bmatrix} = \begin{bmatrix} R & \bm{t}\\ \bm{0} & 1 \end{bmatrix} \begin{bmatrix} \bm{x}_{local} \\ 1 \end{bmatrix}
 $$
 
-が成立することが分かる。$\begin{bmatrix} R & \bm{t}\\ \bm{0} & 1 \end{bmatrix}$はブロック分割による表現を使っており、成分表示すれば$\begin{bmatrix} \cos\theta & -sin\theta & a \\ \sin\theta & \cos\theta & b \\ 0 & 0 & 1 \end{bmatrix}$である。
+が成立することが分かる。$\begin{bmatrix} R & \bm{t}\\ \bm{0} & 1 \end{bmatrix}$はブロック分割による表現を使っており、成分表示すれば$\begin{bmatrix} \cos\theta & -\sin\theta & a \\ \sin\theta & \cos\theta & b \\ 0 & 0 & 1 \end{bmatrix}$である。
 
-**この行列$\begin{bmatrix} R & \bm{t}\\ 0 & 1 \end{bmatrix}$をロボットのポーズの表現である**として、$T$と置くことにしよう。また$\bm{x}_{global}$と$\bm{x}_{local}$には1の成分が下に追加されたが、これは同次座標(homogenerous coordinate)と呼ばれるものである。$T$は、ローカル同次座標からグローバル同次座標への座標変換を表現する行列ということになる。
+**この行列$\begin{bmatrix} R & \bm{t}\\ 0 & 1 \end{bmatrix}$をロボットのポーズの表現である**として、$T$と置くことにしよう。また$\bm{x}_{global}$と$\bm{x}_{local}$には1の成分が下に追加されたが、これは同次座標(homogeneous coordinate)と呼ばれるものである。$T$は、ローカル同次座標からグローバル同次座標への座標変換を表現する行列ということになる。
 
 この表現は非常に応用が利く。なぜなら、行列そのものやその演算は我々が良く慣れ親しんだものであり、行列について成立した様々な性質をそのまま応用可能だからである。
 
@@ -189,7 +189,7 @@ $$
 次に、ポーズが$T$であるとき**逆に**ローカル座標から見たグローバル座標のポーズ$T_{inverse}$はどうなるか？
 
 $$
-T_{inverse} \bm{x}_{global} = \bm{x}_{local} = T_1^{-1} \bm{x}_{global}
+T_{inverse} \bm{x}_{global} = \bm{x}_{local} = T^{-1} \bm{x}_{global}
 $$
 
 が成立しなければならないので、$T_{inverse} = T^{-1}$である。ポーズの逆演算は、逆行列の演算と等価であると見なすことができる。
@@ -206,7 +206,7 @@ $$
 
 以上のように、これまでの行列に関する知識体系をそのままポーズの様々な演算に応用可能である。
 
-この$T$の集合は、$\mathrm{SE}(2)$ (SE: Special Euclidian group)と呼ばれるものであり、ユークリッド群(Euclidian group)と呼ばれるものの一つである。また、回転変換のみを実施する$R$単品の集合は$\mathrm{SO}(2)$ (SO: Special orthogonal group)、平行移動変換のみを実施する$t$単品の集合は$\mathrm{T}(2)$ (T: Translation group)と呼ばれるものであり$\mathbb{R}^2$と等価である。
+この$T$の集合は、$\mathrm{SE}(2)$ (SE: Special Euclidean group)と呼ばれるものであり、ユークリッド群(Euclidean group)と呼ばれるものの一つである。また、回転変換のみを実施する$R$単品の集合は$\mathrm{SO}(2)$ (SO: Special orthogonal group)、平行移動変換のみを実施する$t$単品の集合は$\mathrm{T}(2)$ (T: Translation group)と呼ばれるものであり$\mathbb{R}^2$と等価である。
 
 実は、この話は三次元でも全く同じであり、三次元の回転を表す回転行列$R$と平行移動ベクトル$t$を用意すれば、同じ規則が成り立つ。以下に、表でまとめる。
 
@@ -224,7 +224,7 @@ $$
 
 ### 補足：回転行列の直交性について
 
-二次元の回転も、三次元の回転もそれぞれ2次正方行列、3次正方行列として存在する。任意の回転について、その存在を証明することは他の文献に譲るが、それが直行行列（逆行列が転置行列であるような行列）であることは応用上重要なことなので補足しておく。
+二次元の回転も、三次元の回転もそれぞれ2次正方行列、3次正方行列として存在する。任意の回転について、その存在を証明することは他の文献に譲るが、それが直交行列（逆行列が転置行列であるような行列）であることは応用上重要なことなので補足しておく。
 
 回転は原点からの距離を変えない変換である。従って、回転行列$R$がベクトル$\bm{x}$を回転した場合、そのノルムは変化しない。従って、
 
@@ -363,7 +363,7 @@ $$
 \operatorname{interp}(T_1, T_2; \tau) = T_1 (\delta T)^{\tau n}
 $$
 
-の$n\rightarrow\infty$の極限において$SE(2)$補間を求めることができる。行列の「和の極限」であれば簡単であるが、行列の「積の極限」の極限となると一見すると難しい問題に見えてくる。ただ、以下に示すように実数においては総積を総和の形に変換する方法を学んだことがあるはずだ。
+の$n\rightarrow\infty$の極限において$SE(2)$補間を求めることができる。行列の「和の極限」であれば簡単であるが、行列の「積の極限」となると一見すると難しい問題に見えてくる。ただ、以下に示すように実数においては総積を総和の形に変換する方法を学んだことがあるはずだ。
 
 ### 1次元の指数・対数写像による乗法的プロセスの補間
 
@@ -385,7 +385,7 @@ $$
 z = \operatorname{interp}(a, b; \tau) = a + \lim_{n \to \infty} \dfrac{1}{n} \sum_{k=1}^{n\tau} v = a + \int_{0}^{\tau} v d\tau = a + \tau v = a + \tau (b - a)
 $$
 
-となり、これは線形補間そのものである。当然だが$\dfrac{dz}{dt} = v$であって、$v$は$z$の速度である。
+となり、これは線形補間そのものである。当然だが$\dfrac{dz}{d\tau} = v$であって、$v$は$z$の速度である。
 
 では、問題を変えて微小時間$\delta \tau = 1/n$あたり**一定の$(1 + \xi \delta \tau)$倍に乗法的に増加していく**と仮定すると答えはどうなるだろうか？
 
@@ -416,17 +416,17 @@ $$
 z(\tau) = \operatorname{interp}(a, b; \tau) = a \exp \left(\tau \xi \right) = a \exp \left(\tau \log \dfrac{b}{a}\right)
 $$
 
-ここで$\xi$について見ると、これは対数空間における速度に対応して$\dfrac{d\log z}{d\tau}=\xi$である。では、元の指数空間における速度は何になるかと言えば、$\dfrac{dz}{d\tau} = a \xi \exp(\xi \tau) = z \xi$であり、したがって$z^{-1} \dfrac{dz}{d\tau} = \xi$となる。つまり、対数空間における速度$\xi$は指数空間においては実際の速度の自分自身の逆数を掛けた、相対的な速度に対応することが分かる。特に、$z=1$のときは指数空間での速度と一致する。このことは、次の章でリー群の対数写像を理解する上で重要となる。
+ここで$\xi$について見ると、これは対数空間における速度に対応して$\dfrac{d\log z}{d\tau}=\xi$である。では、元の指数空間における速度は何になるかと言えば、$\dfrac{dz}{d\tau} = a \xi \exp(\xi \tau) = z \xi$であり、したがって$z^{-1} \dfrac{dz}{d\tau} = \xi$となる。つまり、対数空間における速度$\xi$は指数空間においては実際の速度に自分自身の逆数を掛けた、相対的な速度に対応することが分かる。特に、$z=1$のときは指数空間での速度と一致する。このことは、次の章でリー群の対数写像を理解する上で重要となる。
 
 ### リー群の指数・対数写像による補間
 
-さて、元の$\mathrm{SE}(2)$の場合の補間に話を戻そう。これは乗法的なプロセスであったので、対数写像を取ることで相和の形に持って行くことができる。そもそも行列に指数写像や対数写像を取れることの説明が必要であるが、まずは仮にできると仮定して先に補間式の導出を行おう。
+さて、元の$\mathrm{SE}(2)$の場合の補間に話を戻そう。これは乗法的なプロセスであったので、対数写像を取ることで総和の形に持って行くことができる。そもそも行列に指数写像や対数写像を取れることの説明が必要であるが、まずは仮にできると仮定して先に補間式の導出を行おう。
 
 $$
 T_2 = T_1 (\delta T)^n
 $$
 
-まず、$\delta T$を定数と微小項に分解しよう。全く動かないポーズは単位行列$I$であったので、$\delta T$は$I$に微小な行列を足したものと考えられる。また、その微小項は微小時間$\delta \tau = 1 / N$に比例するものであるとして、その係数を$[\bm{\xi}]_\wedge$と置く[^approx]。この$[\bm{\xi}]_\wedge$は先ほどの一次元の場合と異なって行列である。
+まず、$\delta T$を定数と微小項に分解しよう。全く動かないポーズは単位行列$I$であったので、$\delta T$は$I$に微小な行列を足したものと考えられる。また、その微小項は微小時間$\delta \tau = 1 / n$に比例するものであるとして、その係数を$[\bm{\xi}]_\wedge$と置く[^approx]。この$[\bm{\xi}]_\wedge$は先ほどの一次元の場合と異なって行列である。
 
 [^approx]: 厳密性がなくかなり端折ったが、数学の議論ではないのでお許しいただきたい
 
@@ -440,7 +440,7 @@ $$
 T_2 = T_1 \lim_{n \to \infty} \prod_{k=1}^{n} \left(I + \dfrac{1}{n} [\bm{\xi}]_\wedge \right)
 $$
 
-であり、左から$T_1^{-1}$を掛けてから、後は先ほどの1次元の場合の対数・指数写像による補間変換と同様の施すことで、
+であり、左から$T_1^{-1}$を掛けてから、後は先ほどの1次元の場合の対数・指数写像による補間と同様の変換を施すことで、
 
 $$
 \log (T_1^{-1} T_2) = \lim_{n \to \infty} \sum_{k=1}^{n} \log \left(I + \dfrac{1}{n} [\bm{\xi}]_\wedge \right) = [\bm{\xi}]_\wedge
@@ -454,14 +454,14 @@ $$
 
 となり、対数写像と指数写像を用いた補間式が得られる。これは、行列積を群の演算としている$\mathrm{SO}(2), \mathrm{SO}(3), \mathrm{SE}(3)$でも全く事情は同じである。（$\mathrm{T}(2), \mathrm{T}(3)$は加法を演算としており、単に線形補間をすればよい。）
 
-$[\bm{\xi}]_\wedge = \log (T_1^{-1} T_2)$であることから、$[\bm{\xi}]_\wedge$はリー群の対数写像として得られる行列になっており、これを「リー代数」と呼ぶ。つまり**リー群とリー代数は指数写像・対数写像によって互いに相互変換できる関係にある**。また、表記法については$\mathrm{SE}(2)$に対応するリー代数は$\mathfrak{se}(2)$というように、小文字のドイツ文字（フラクトゥール体）を用いる。
+$[\bm{\xi}]_\wedge = \log (T_1^{-1} T_2)$であることから、$[\bm{\xi}]_\wedge$はリー群の対数写像として得られる行列になっている。このような行列の集まりを「リー代数」と呼ぶ。その正確な定義は、後述するように単位元における接空間（速度の空間）である。指数写像はリー代数をリー群に移し、対数写像は単位元の近傍でその逆写像となる。つまり**リー群とリー代数は、単位元の近傍において指数写像・対数写像によって互いに移り合う関係にある**。また、表記法については$\mathrm{SE}(2)$に対応するリー代数は$\mathfrak{se}(2)$というように、小文字のドイツ文字（フラクトゥール体）を用いる。
 
-また、1次元の場合と同様の議論で、$[\bm{\xi}]_\wedge$はリー群の対数空間における速度ベクトルとして捉えることができ、指数空間（リー群）においては$\dfrac{dT}{d\tau} = T [\bm{\xi}]_\wedge$が成立する。では、この速度変化を**相対的に**ポーズ$T$から見たらどうなるだろうか？これは、左から$T^{-1}$を掛ける操作をすればよいのであった。すると、$T^{-1} \dfrac{dT}{d\tau} = [\bm{\xi}]_\wedge$となり一定となる。つまり、**単位時間あたりの相対変化を表現するリー群に対数写像を取って得られるリー代数は、その瞬間のポーズ$T$から相対的に見た（＝ローカル座標から見た）$T$の速度そのもの**ということができる。
+また、1次元の場合と同様の議論で、$[\bm{\xi}]_\wedge$はリー群の対数空間における速度ベクトルとして捉えることができ、指数空間（リー群）においては$\dfrac{dT}{d\tau} = T [\bm{\xi}]_\wedge$が成立する。では、この速度変化を**相対的に**ポーズ$T$から見たらどうなるだろうか？これは、左から$T^{-1}$を掛ける操作をすればよいのであった。すると、$T^{-1} \dfrac{dT}{d\tau} = [\bm{\xi}]_\wedge$となり一定となる。ただし、一定となるのは、導出の前提として微小時間あたりの相対変化$\delta T$が一定、すなわちローカル座標から見た速度が一定であると仮定したためである。つまり、**速度が一定の運動においては、単位時間あたりの相対変化を表現するリー群に対数写像を取って得られるリー代数は、その瞬間のポーズ$T$から相対的に見た（＝ローカル座標から見た）$T$の速度そのもの**ということができる。一般の運動では速度は一定ではない。その場合でも$\log (T_1^{-1} T_2)$は、同じ終点$T_2$に到達する一定の速度（ツイスト）を表す。
 
-特に$T=I$（ローカル座標=グローバル座標）である場合は、$T$のグローバル座標での速度である。このリー代数の捉え方は非常に重要であり、ぜひ頭に入れておきたい。これらの関係を幾何的に図で表すと、以下のようにリー群$\mathrm{G}$の単位元($I$)における接空間（多様体における接平面）がリー代数$\mathfrak{g}$となっていて、これらが対数・指数写像によって相互変換できる関係にある。
+特に$T=I$（ローカル座標=グローバル座標）である場合は、$T$のグローバル座標での速度である。このリー代数の捉え方は非常に重要であり、ぜひ頭に入れておきたい。これを幾何的に見てみよう。$T_1 = I$とすると、曲線$T(\tau) = \exp(\tau [\bm{\xi}]_\wedge)$は$\tau = 0$で単位元$I$を通り、そこでの速度は$\left.\dfrac{dT}{d\tau}\right|_{\tau=0} = [\bm{\xi}]_\wedge$である。つまり、$[\bm{\xi}]_\wedge$は単位元$I$を通る曲線の接ベクトルである。このような接ベクトル全体、すなわちリー群$\mathrm{G}$の単位元($I$)における接空間（多様体における接平面）がリー代数$\mathfrak{g}$である。図で表すと以下のようになり、指数写像がリー代数をリー群に移し、対数写像が単位元の近傍でその逆写像となっている。
 
 ![](/images/lie-group-for-robotics/image4.png =300x)
-*例：$\mathrm{SE}(3)$と$\mathfrak{se}(3)$は、どちらも4次の実正方行列全体の空間$M_4(\mathbb{R})$に埋め込まれた多様体（超曲面）として見ることができる。そして、$\mathfrak{se}(3)$は$\mathrm{SE}(3)$の単位元($I$)における接空間を構成する。*
+*例：$\mathrm{SE}(3)$と$\mathfrak{se}(3)$は、どちらも4次の実正方行列全体の空間$M_4(\mathbb{R})$に埋め込まれた多様体として見ることができる。そして、$\mathfrak{se}(3)$は$\mathrm{SE}(3)$の単位元($I$)における接空間を構成する。*
 
 ## リー代数の指数写像
 
@@ -479,7 +479,7 @@ $$
 \exp X \triangleq I + \sum_{k=1}^{\infty} \dfrac{X^k}{k!} = I + X +  \dfrac{1}{2!} X^2 + \dfrac{1}{3!} X^3 + \cdots 
 $$
 
-そして行列の対数写像は、この指数写像の逆像として定義する。
+そして行列の対数写像は、この指数写像の逆写像として（局所的に）定義する。
 
 $$
 \log (\exp X) \triangleq X
@@ -487,7 +487,7 @@ $$
 
 指数写像は先ほど述べたように任意の実数・複素行列に対して存在するが、対数写像はそうではない。
 
-以上のことを用いて、実際にリー群とリー代数が実際にリー群とリー代数が指数写像・対数写像の関係にあることを示そう。
+以上のことを用いて、実際にリー群とリー代数が指数写像・対数写像の関係にあることを示そう。
 
 ### リー代数 so(2)
 
@@ -518,7 +518,7 @@ $$
 \\
 &= I_2 + \theta [1]_\wedge + \dfrac{\theta^2 [1]_\wedge^2}{2!} + \dfrac{\theta^3 [1]_\wedge^3}{3!} + \cdots
 \\
-&= \left(1 - \dfrac{\theta^2}{2!} + \dfrac{\theta^4}{4!} \cdots\right) I_2 + \left(\theta - \dfrac{\theta^3}{3!} + \dfrac{\theta^5}{5!}\right) [1]_\wedge
+&= \left(1 - \dfrac{\theta^2}{2!} + \dfrac{\theta^4}{4!} - \cdots\right) I_2 + \left(\theta - \dfrac{\theta^3}{3!} + \dfrac{\theta^5}{5!} - \cdots\right) [1]_\wedge
 \\
 &= \cos\theta I_2+ \sin\theta[1]_\wedge
 \\
@@ -564,10 +564,10 @@ $$
 結論から示すと、$\mathrm{SE}(2)$の対数写像は
 
 $$
-[\bm{\xi}]_\wedge = \begin{bmatrix}[\theta]_\wedge&\bm{\rho}\\0&0\end{bmatrix} \quad \left( [\theta]_\wedge \in \mathfrak{so}(2), \bm{\rho} \in \mathbb{2}^3 \right)
+[\bm{\xi}]_\wedge = \begin{bmatrix}[\theta]_\wedge&\bm{\rho}\\0&0\end{bmatrix} \quad \left( [\theta]_\wedge \in \mathfrak{so}(2), \bm{\rho} \in \mathbb{R}^2 \right)
 $$
 
-であり、これがリー代数$\mathfrak{se}(2)$の要素である。ただし、$\bm{\xi}\triangleq\begin{bmatrix}\bm{\rho}\\\theta\end{bmatrix}\in\mathbb{R}^3$であり、wedge演算子$[\cdot]_\wedge$はこの3次元ベクトルを右辺の行列に変換するものとして定義する。（右辺の行列の中身の$[\theta]_\wedge$については、$\mathrm{so}(2)$で説明したように歪対称行列の形に変換するものとして解釈する。）
+であり、これがリー代数$\mathfrak{se}(2)$の要素である。ただし、$\bm{\xi}\triangleq\begin{bmatrix}\bm{\rho}\\\theta\end{bmatrix}\in\mathbb{R}^3$であり、wedge演算子$[\cdot]_\wedge$はこの3次元ベクトルを右辺の行列に変換するものとして定義する。（右辺の行列の中身の$[\theta]_\wedge$については、$\mathfrak{so}(2)$で説明したように歪対称行列の形に変換するものとして解釈する。）
 
 実際にこの指数写像を計算してみると、
 
@@ -590,7 +590,7 @@ $$
 
 であり[^SE2-left-jacobian]、指数写像を取るときに、リー代数の並進成分($\bm{\rho}$)をリー群の並進成分($\bm{t}$)に変換する係数となっている。数値計算において$\theta$が微小な場合は、三角関数のテイラー展開により例えば$\theta$の1次の項で打ち切って
 
-[^SE2-left-jacobian]: この$V(\theta)$は、本稿では詳細には触れないが、$SO(2)$の左ヤコビアン$J_l(\theta)$と一致することから、これを「左ヤコビアン」と呼ぶ文献もある。ただし、$SE(2)$としての左ヤコビアンは別に定義されることから、混同しないように注意されたい。
+[^SE2-left-jacobian]: この$V(\theta)$は、本稿では詳細には触れないが、$SE(2)$の左ヤコビアンの左上$2\times2$ブロックとしても現れる。なお、$\mathrm{SE}(3)$の場合（後述）と異なり、$SO(2)$は可換群であるためその左ヤコビアンは$J_l(\theta)=1$であり、$V(\theta)$とは一致しない。混同しないように注意されたい。
 
 $$
 V(\theta) \approx \begin{bmatrix}1&-\theta/2\\\theta/2&1\end{bmatrix} \quad (\theta \approx 0)
@@ -616,7 +616,7 @@ $$
 [\bm{\theta}]_\times \bm{p} = 
 \begin{bmatrix}0&-\theta_z&\theta_y\\\theta_z&0&-\theta_x\\-\theta_y&\theta_x&0\end{bmatrix}
 \begin{bmatrix}p_x\\ p_y\\ p_z\end{bmatrix} =
-\begin{bmatrix}-\theta_zp_y + \theta_yp_z\\ \theta_zp_x-\theta_xp_y\\ -\theta_yp_x + \theta_xp_y\end{bmatrix} = \bm{\theta} \times \bm{p}
+\begin{bmatrix}-\theta_zp_y + \theta_yp_z\\ \theta_zp_x-\theta_xp_z\\ -\theta_yp_x + \theta_xp_y\end{bmatrix} = \bm{\theta} \times \bm{p}
 $$
 
 となり、ベクトルの外積（クロス積）が得られる。だから、外積を意味する$\times$を下付きの添え字として使って$[\cdot]_\times$のように表す場合がある。
@@ -636,7 +636,7 @@ $$
 \\
 &= I + \theta [\bm{n}]_\wedge + \dfrac{\theta^2 [\bm{n}]_\wedge^2}{2!} + \dfrac{\theta^3 [\bm{n}]_\wedge^3}{3!} + \cdots
 \\
-&= I + \left(\theta - \dfrac{\theta^3}{3!} + \dfrac{\theta^5}{5!}\right) [\bm{n}]_\wedge + \left(\dfrac{\theta^2}{2!} - \dfrac{\theta^4}{4!} + \dfrac{\theta^6}{6!} \cdots\right) [\bm{n}]_\wedge^2
+&= I + \left(\theta - \dfrac{\theta^3}{3!} + \dfrac{\theta^5}{5!} - \cdots\right) [\bm{n}]_\wedge + \left(\dfrac{\theta^2}{2!} - \dfrac{\theta^4}{4!} + \dfrac{\theta^6}{6!} - \cdots\right) [\bm{n}]_\wedge^2
 \\
 &= I + \sin\theta[\bm{n}]_\wedge + (1-\cos\theta)[\bm{n}]_\wedge^2
 \end{align*}
@@ -649,7 +649,7 @@ $$
 $\mathrm{SE}(2)$のときと同様に、$\mathrm{SE}(3)$の対数写像は
 
 $$
-[\bm{\xi}]_\wedge = \begin{bmatrix}[\bm{\theta}]_\wedge&\bm{\rho}\\0&0\end{bmatrix} \quad \left( [\bm{\theta}]_\wedge \in \mathrm{SO}(3), \rho \in \mathbb{R}^3 \right)
+[\bm{\xi}]_\wedge = \begin{bmatrix}[\bm{\theta}]_\wedge&\bm{\rho}\\0&0\end{bmatrix} \quad \left( [\bm{\theta}]_\wedge \in \mathfrak{so}(3), \bm{\rho} \in \mathbb{R}^3 \right)
 $$
 
 であり、これがリー代数$\mathfrak{se}(3)$の要素である。ただし、$\bm{\xi} \triangleq \begin{bmatrix}\bm{\rho}\\\bm{\theta}\end{bmatrix} \in \mathbb{R}^6$であり、wedge演算子$[\cdot]_\wedge$はこの6次元ベクトルを右辺の行列に変換するものとする。
@@ -689,10 +689,10 @@ $M_N(\mathbb{R})$とは、N次実正方行列を指す。注意してほしい�
 | リー群 | 対応するリー代数 |
 | - | - |
 | $\mathrm{T}(2) = \mathbb{R}^2$ (ただし群の演算としては加法を用いる) | $\mathfrak{t}(2) = \mathbb{R}^2$ |
-| $\mathrm{SO}(2) = \left \{ R = M_2(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(2) = \left \{ [\theta]_\wedge = M_2(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
+| $\mathrm{SO}(2) = \left \{ R \in M_2(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(2) = \left \{ [\theta]_\wedge \in M_2(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
 | $\mathrm{SE}(2) = \left \{ \begin{bmatrix}R_2&t_2\\0&1\end{bmatrix} \| R_2 \in \mathrm{SO}(2), t \in \mathrm{T}(2) \right \}$ | $\mathfrak{se}(2) = \left \{ \begin{bmatrix}[\theta]_\wedge&\rho\\0&0\end{bmatrix} \| [\theta]_\wedge \in \mathfrak{so}(2), \rho \in \mathrm{T}(2) \right \}$ |
 | $\mathrm{T}(3) = \mathbb{R}^3$ (ただし群の演算としては加法を用いる) | $\mathfrak{t}(3) = \mathbb{R}^3$ |
-| $\mathrm{SO}(3) = \left \{ R = M_3(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(3) = \left \{ [\theta]_\wedge = M_3(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
+| $\mathrm{SO}(3) = \left \{ R \in M_3(\mathbb{R}) \| R^{-1} = R^T, \det(R) = 1 \right \}$ | $\mathfrak{so}(3) = \left \{ [\theta]_\wedge \in M_3(\mathbb{R}) \| [\theta]_\wedge + [\theta]_\wedge^T = 0 \right \}$ |
 | $\mathrm{SE}(3) = \left \{ \begin{bmatrix}R_3&t_3\\0&1\end{bmatrix} \| R_3 \in \mathrm{SO}(3), t \in \mathrm{T}(3) \right \}$ | $\mathfrak{se}(3) = \left \{ \begin{bmatrix}[\theta]_\wedge&\rho\\0&0\end{bmatrix} \| [\theta]_\wedge \in \mathfrak{so}(3), \rho \in \mathrm{T}(3) \right \}$ |
 
 ### SE(2)の対数・指数写像による補間
@@ -728,7 +728,7 @@ V(\theta) &= \dfrac{1}{\theta}\begin{bmatrix}\sin\theta&-(1-\cos\theta)\\1-\cos\
 \end{align*}
 $$
 
-まず、$T_1^{-1}T_2 = \begin{bmatrix}0&-1&1\\1&0&1\\0&0&1\end{bmatrix}$であり、この対数写像$\log(T_1^{-1}T_2)$を求めたい。$T_1^{-1}T_2$の回転成分は$\theta=\dfrac{\pi}{2}$であり[^atan2]、これより$J\left(\dfrac{\pi}{2}\right)=\dfrac{2}{\pi}\begin{bmatrix}1&-1\\1&1\end{bmatrix}$であるから、$\bm{\rho}=J\left(\dfrac{\pi}{2}\right)^{-1}\begin{bmatrix}1\\1\end{bmatrix}=\begin{bmatrix}\pi/2\\0\end{bmatrix}$であり、$\bm{\xi} = \begin{bmatrix}\theta\\\bm{\rho}\end{bmatrix} = \begin{bmatrix}\pi/2\\\pi/2\\0\\\end{bmatrix}$のように求められる。
+まず、$T_1^{-1}T_2 = \begin{bmatrix}0&-1&1\\1&0&1\\0&0&1\end{bmatrix}$であり、この対数写像$\log(T_1^{-1}T_2)$を求めたい。$T_1^{-1}T_2$の回転成分は$\theta=\dfrac{\pi}{2}$であり[^atan2]、これより$V\left(\dfrac{\pi}{2}\right)=\dfrac{2}{\pi}\begin{bmatrix}1&-1\\1&1\end{bmatrix}$であるから、$\bm{\rho}=V\left(\dfrac{\pi}{2}\right)^{-1}\begin{bmatrix}1\\1\end{bmatrix}=\begin{bmatrix}\pi/2\\0\end{bmatrix}$であり、$\bm{\xi} = \begin{bmatrix}\bm{\rho}\\\theta\end{bmatrix} = \begin{bmatrix}\pi/2\\0\\\pi/2\\\end{bmatrix}$のように求められる。
 
 [^atan2]: たとえば行列の(2,1)成分をy、(1,1)成分をxとしたときのatan2(y,x)を求めればよい
 
@@ -739,7 +739,7 @@ $$
 \exp(\tau\log(T_1^{-1}T_2))
 &=\exp(\tau[\bm{\xi}]_\wedge)
 \\
-&=\begin{bmatrix}R\left(\dfrac{\pi\tau}{2}\right)&J\left(\dfrac{\pi\tau}{2}\right)\rho\\\bm{0}&1\end{bmatrix}
+&=\begin{bmatrix}R\left(\dfrac{\pi\tau}{2}\right)&V\left(\dfrac{\pi\tau}{2}\right)\tau\bm{\rho}\\\bm{0}&1\end{bmatrix}
 \\
 &= \begin{bmatrix}R\left(\dfrac{\pi\tau}{2}\right)&\begin{matrix}\sin\dfrac{\pi\tau}{2}\\[8pt]1-\cos\dfrac{\pi\tau}{2}\end{matrix}\\\bm{0}&1\end{bmatrix}
 \end{align*}
@@ -766,13 +766,13 @@ $$
 ロボットが、初期ポーズが$T_0$で、その後$\Delta \tau_i (i = 1\sim n)$の時間間隔でローカル座標系で速度$\bm{u}_i = [\bm{v}_i, \omega_i]^T$で走行した場合の最終的なポーズ$T \in \mathrm{SE}(2)$を求めたいとする。これは、非常に簡単であり、
 
 $$
-T = T_0 \exp([\bm{u}_1]_\wedge \tau_1) \exp([\bm{u}_2]_\wedge \tau_2) \cdots \exp([\bm{u}_n]_\wedge \tau_n)
+T = T_0 \exp([\bm{u}_1]_\wedge \Delta\tau_1) \exp([\bm{u}_2]_\wedge \Delta\tau_2) \cdots \exp([\bm{u}_n]_\wedge \Delta\tau_n)
 $$
 
 として求めることができる。このように、ローカル座標における相対的な速度情報を用いたポーズの更新は単純な指数写像の積として求めることができる。これは、$\mathrm{SE}(3)$であっても同様である。数式の内容は全く変わらないものの、後に導入する$\oplus$演算子を用いれば、
 
 $$
-T = T_0 \oplus \bm{u}_1 \tau_1 \oplus \bm{u}_2 \tau_2 \cdots \oplus \bm{u}_n \tau_n
+T = T_0 \oplus \bm{u}_1 \Delta\tau_1 \oplus \bm{u}_2 \Delta\tau_2 \cdots \oplus \bm{u}_n \Delta\tau_n
 $$
 
 のようにも表記でき、あたかも単純な加法で更新後のポーズを得られるような表現となる。
@@ -791,16 +791,16 @@ $$
 \bm{x} = \bm{x}_0 - \left(\dfrac{\partial f}{\partial \bm{x}}(\bm{x}_0)\right)^{-1} f(\bm{x}_0)
 $$
 
-のように更新することで、ベクトル値関数$f: \mathbb{R}^n \to \mathbb{R}^n$の停留点を求めることができる。
+のように更新することで、ベクトル値関数$f: \mathbb{R}^n \to \mathbb{R}^n$について$f(\bm{x})=\bm{0}$となる解（零点）を求めることができる。
 
 拡張カルマンフィルタであれば、時間更新式においては
 
 $$
-P_{k|k+1} = F_k P_{k-1|k+1} F_k^T + G_k Q_k G_k^T
+P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + G_k Q_k G_k^T
 $$
 
 $$
-F_k \triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}, G \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k}
+F_k \triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}, G_k \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k}
 $$
 
 のようにすることで、状態量$\bm{x}$の誤差共分散行列$P$を更新することができる。
@@ -813,7 +813,7 @@ $$
 J_f \triangleq \dfrac{\partial f(\bm{x})}{\partial \bm{x}} \triangleq \lim_{\delta x \to 0} \dfrac{f(\bm{x}+\delta\bm{x}) - f(\bm{x})}{\delta \bm{x}}
 $$
 
-のように微分が定義され、これを$J_f \in \mathbb{R}^{m \times n}$をヤコビ行列（Jacobian matrix）と呼んだのだった。これを用いると、
+のように微分が定義され、この$J_f \in \mathbb{R}^{m \times n}$をヤコビ行列（Jacobian matrix）と呼んだのだった。これを用いると、
 
 $$
 f(\bm{x} + \Delta \bm{x}) \approx f(\bm{x}) + J_f \Delta \bm{x}
@@ -829,9 +829,9 @@ $$
 
 ただし、微分においては$\mathcal{X}$は例えば各列ベクトルをつなげて単一の列ベクトルと見なして、先ほどと同様の微分を施すものとする。ここで以下のように2つの問題が発生する。
 
-1. $\mathcal{X}+\delta\mathcal{X}$がリー群であるためには$\delta \mathcal{X}$は制約条件を持ったベクトルになる。これは、リー群$\mathrm{G}$が加法に対してベクトル空間を形成しないことによる。従って、制約条件を考慮した微分を考える必要があり問題が複雑化する。
+1. 一般に$\mathcal{X}+\delta\mathcal{X}$はリー群$\mathrm{G}$からはみ出してしまい、$\mathrm{G}$の要素であるためには$\delta \mathcal{X}$は制約条件を持ったベクトルになる。これは、リー群$\mathrm{G}$が加法に対してベクトル空間を形成しないことによる。従って、制約条件を考慮した微分を考える必要があり問題が複雑化する。
 
-2. $f(\mathcal{X}+\delta\mathcal{X}) - f(\mathcal{X})$の結果もリー群$G$であってほしいが、1.の場合と同様にリー群はベクトル空間でないため、単純な差を取った場合にはそれは保証されない。このままでは、得られたヤコビ行列を用いて$f(\bm{x} + \Delta \bm{x}) \approx f(\bm{x}) + J_f \Delta \bm{x}$といった近似式を得ることができない。
+2. 出力側でも、近接した$\mathrm{H}$の2つの要素の差を、ベクトル空間（$f(\mathcal{X})$における接空間）の要素として表したい。しかし、1.の場合と同様にリー群はベクトル空間でないため、単純な差$f(\mathcal{X}+\delta\mathcal{X}) - f(\mathcal{X})$は$\mathrm{H}$の自由度より多くの成分を持つ行列であり、その接空間の座標（制約のないベクトル）として直接は扱えない。このままでは、得られたヤコビ行列を用いて$f(\mathcal{X} + \Delta \mathcal{X}) \approx f(\mathcal{X}) + J_f \Delta \mathcal{X}$といった近似式を得ることができない。後述する$\ominus$は、この差を$\operatorname{Log}(\cdot) \in \mathbb{R}^m$（$m$は$\mathrm{H}$の自由度）として与えるものである。
 
 そこで、リー群の微分を考えるにあたっては、リー群の微小変化を記述できる制約条件のないベクトルが欲しい。それが都合が良いことに存在し、それこそがリー代数である。リー代数は前述した形からも分かるように定数倍や和はリー代数となり、ベクトル空間[^vector-space]を形成する。そこで、リー群と微小なリー代数から得られるリー群との行列積を「和」として捉え、またその逆を差として捉えることが可能である。そこで、
 
@@ -841,7 +841,7 @@ $$
 \begin{align*}
 J_f \triangleq \dfrac{D f(\mathcal{X})}{D \mathcal{X}} &\triangleq \lim_{\delta \bm{\xi} \to \bm{0}} \dfrac{f(\mathcal{X}\oplus\delta\bm{\xi}) \ominus f(\mathcal{X})}{\delta \bm{\xi}}
 \\
-&\triangleq \dfrac{\partial \operatorname{Log}(f(\mathcal{X})^{-1} f(\mathcal{X} \operatorname{Exp}(\bm{\xi})))}{\partial \bm{\xi}}
+&\triangleq \left.\dfrac{\partial \operatorname{Log}(f(\mathcal{X})^{-1} f(\mathcal{X} \operatorname{Exp}(\bm{\xi})))}{\partial \bm{\xi}}\right|_{\bm{\xi}=\bm{0}}
 \end{align*}
 $$
 
@@ -858,7 +858,7 @@ $$
 ただし、新しく登場した記号$\oplus$と$\ominus$は普通の意味での和や差ではなく、下記のように定義される。
 
 - $\operatorname{Exp}(\cdot)$：拡張された指数写像。リー代数のベクトル表示を直接、リー群に変換するものとして定義する。つまり、$\operatorname{Exp}(\cdot) \triangleq \exp([\cdot]_\wedge)$である。元の指数写像と区別するために、大文字のEを用いる。
-- $\operatorname{Log}(\cdot)$：拡張された対数写像。リー群を直接、リー代数のベクトル表示に変換するものとして定義する。つまり、$\operatorname{Log}(\cdot) \triangleq (\log(\cdot))^\vee$である。元の指数写像と区別するために、大文字のLを用いる。
+- $\operatorname{Log}(\cdot)$：拡張された対数写像。リー群を直接、リー代数のベクトル表示に変換するものとして定義する。つまり、$\operatorname{Log}(\cdot) \triangleq (\log(\cdot))^\vee$である。元の対数写像と区別するために、大文字のLを用いる。
 - $\oplus$：リー群とリー代数のベクトル表示との和を表す二項演算子であり、後者については対応するリー代数に変換したものを前者と合成するものとする。つまり、$X \oplus y\triangleq X (\operatorname{Exp} y), y \oplus X\triangleq (\operatorname{Exp} y) X$である。
     - 文献によっては、これを$\boxplus$と表記するものもある。
 - $\ominus$：2つのリー群の差を、対応するリー代数のベクトル表示として表す二項演算子であり、$\mathcal{Y} \ominus \mathcal{X} \triangleq \operatorname{Log}(\mathcal{X}^{-1} \mathcal{Y})$である。
@@ -892,7 +892,7 @@ f(\bm{x} + \Delta \bm{x}) \approx f(\bm{x}) \oplus J_f \Delta \bm{x}
 $$
 
 
-3. 関数$f$がリー群からベクトルへの関数である。$f: \mathrm{G}\to\mathbb{R}^n$
+3. 関数$f$がリー群からベクトルへの関数である。$f: \mathrm{G}\to\mathbb{R}^m$
 
     リー群用の和（$\oplus$）と通常の差（$-$）を用いる。このときヤコビ行列は$m\times n$の行列となり、$n$はリー群$\mathrm{G}$の自由度である。
 
@@ -926,11 +926,11 @@ scomup氏の『[ロボット技術者向け リー群の速習(4) リー群を�
 異なる位置で観測された点群$\{\bm{a}_i\}$と$\{\bm{b}_i\}$が与えられ、添え字$i$が同一のものが対応していると仮定するとき、$\{\bm{a}_i\}$を最もよく$\{\bm{b}_i\}$に近づけられるような座標変換$T$を考えたい。コスト関数として例えば以下のように座標変換後のそれぞれの対応する点の距離の二乗和を定義し、これを最小化するような$T_{opt}$が最善の座標変換だとし、これを求めることにする。
 
 $$
-\begin{align}
-T_{opt} \triangleq \sum_{i=1}^n \| \bm{f}_i(T) \|^2 &\triangleq \argmin_T \sum_{i=1}^n \| T \cdot \bm{a}_i - \bm{b}_i \|^2
+\begin{align*}
+T_{opt} &\triangleq \argmin_T \sum_{i=1}^n \| \bm{f}_i(T) \|^2
 \\
-&= \sum_{i=1}^n \| (R \bm{a}_i + \bm{t}) - \bm{b}_i \|^2
-\end{align}
+\bm{f}_i(T) &\triangleq T \cdot \bm{a}_i - \bm{b}_i = (R \bm{a}_i + \bm{t}) - \bm{b}_i \qquad (1)
+\end{align*}
 $$
 
 これは非線形最小二乗問題であり、ガウス・ニュートン法の適用が考えられる。
@@ -944,7 +944,7 @@ $$
 という問題に対して、
 
 $$
-\bm{x} \leftarrow \bm{x} - (J_F^T J_F)^{-1} J_F^T \bm{F}(\bm{x})
+\bm{x} \leftarrow \bm{x} - (J_F^T J_F)^{-1} J_F^T \bm{F}(\bm{x}) \qquad (2)
 $$
 
 というようにヤコビ行列$J_F$を用いて更新則を反復することによって、最適解$\bm{x}_{opt}$を求めることができた。ただし、ここで登場するベクトル値関数$F$やヤコビ行列$J_F$とは
@@ -971,7 +971,7 @@ $$
 
 というように、元のベクトル値関数やそのヤコビ行列を縦にスタックしたものである。
 
-しかしながら、今回は式(1)のように$\bm{f}$がリー群$T$の関数であり、そのままではパラメータ数が過剰であり$J_{f_i}$が適切に計算ができない。従って、この場合は$T$の次元で微分を考えるのではなく、**そのときの$T$の周りのリー代数$\bm{\xi}$のもとで微分を考え、その時の最適な$\bm{\xi}$の更新量に対応した$T$の更新を実施**すればよい。つまり、(1)式の更新則は、
+しかしながら、今回は式(1)のように$\bm{f}$がリー群$T$の関数であり、そのままではパラメータ数が過剰であり$J_{f_i}$が適切に計算できない。従って、この場合は$T$の次元で微分を考えるのではなく、**そのときの$T$の周りのリー代数$\bm{\xi}$のもとで微分を考え、その時の最適な$\bm{\xi}$の更新量に対応した$T$の更新を実施**すればよい。つまり、(2)式の更新則は、
 
 $$
 T \leftarrow T \oplus \left( - (J_F^T J_F)^{-1} J_F^T \bm{F}(T) \right ) \qquad \left( J_{\bm{f}_i} \triangleq \left.\dfrac{D \bm{f}_i}{D T}\right|_{\bm{\xi}} \right)
@@ -988,15 +988,13 @@ $$
 \\
 &= \lim_{\bm{\xi} \to \bm{0}} \dfrac{T \operatorname{Exp}(\bm{\xi}) \cdot \bm{a}_i - T \cdot \bm{a}_i}{\bm{\xi}}
 \\
-&= \lim_{\bm{\xi} \to \bm{0}} \dfrac{T \operatorname{Exp}(\bm{\xi}) \cdot \bm{a}_i - T \cdot \bm{a}_i}{\bm{\xi}}
-\\
 &= \lim_{\bm{\xi} \to \bm{0}} \dfrac{T (I + [\bm{\xi}]_\wedge) \cdot \bm{a}_i - T \cdot \bm{a}_i}{\bm{\xi}}
 \\
 &= \lim_{\bm{\xi} \to \bm{0}} \dfrac{T [\bm{\xi}]_\wedge \cdot \bm{a}_i}{\bm{\xi}}
 \end{align*}
 $$
 
-と計算できる。ここで、$\lim_{\bm{\xi}\to\bm{0}}\operatorname{Exp}(\bm{\xi}) = I + [\bm{\xi}]_\wedge$を用いた。更に分子について、$[\bm{\xi}]_\wedge \triangleq \begin{bmatrix}\bm{\rho}\\\bm{\theta}\end{bmatrix}_\wedge \triangleq \begin{bmatrix}[\bm{\theta}]_\times&\bm{\rho}\\\bm{0}&0\end{bmatrix} \in \mathfrak{se}(3)$と置くと、
+と計算できる。ここで、$\bm{\xi}$が微小なときに成り立つ$\operatorname{Exp}(\bm{\xi}) \approx I + [\bm{\xi}]_\wedge$を用いた。更に分子について、$[\bm{\xi}]_\wedge \triangleq \begin{bmatrix}\bm{\rho}\\\bm{\theta}\end{bmatrix}_\wedge \triangleq \begin{bmatrix}[\bm{\theta}]_\times&\bm{\rho}\\\bm{0}&0\end{bmatrix} \in \mathfrak{se}(3)$と置くと、
 
 $$
 \begin{align*}
@@ -1036,20 +1034,20 @@ https://github.com/scomup/MathematicalRobotics/blob/main/mathR/optimization/demo
 Joan Solà氏の『[A micro Lie theory for state estimation in robotics](https://arxiv.org/abs/1812.01537)』の"V. LANDMARK-BASED LOCALIZATION AND MAPPING"の内容をベースに解説する。
 :::
 
-二次元上を運動するロボットの各時刻$i$でのポーズ$T_i \in \mathrm{SE}(2)$を求めたい。ロボットは、各時刻で相対的に時刻$\Delta\tau$あたり$\bm{u}\triangleq \Delta \tau(\theta_i, \bm{v}_i)^T$で動いていることを搭載したセンサから検出できるが（$\theta$は角速度、$\bm{v}$は並進速度である）、その計測値には正規分布に従った$\bm{w} \sim \mathcal{N}(0, Q)$のノイズが乗っているものとする。また、ロボットは位置$\bm{b}_k \in \mathbb{R}^2$が既知のビーコンからの相対位置をセンサから$\bm{z}_k \in \mathbb{R}^2$として時々取得できて、その計測値には$\bm{n}\sim\mathcal{N}(0,R)$の誤差が乗るものとする。
+二次元上を運動するロボットの各時刻$i$でのポーズ$T_i \in \mathrm{SE}(2)$を求めたい。ロボットは、各時刻で相対的に時刻$\Delta\tau$あたり$\bm{u}\triangleq \Delta \tau(\bm{v}_i, \omega_i)^T$で動いていることを搭載したセンサから検出できるが（$\bm{v}$は並進速度、$\omega$は角速度であり、$\Delta\tau$の間は一定であると仮定する）、その計測値には正規分布に従った$\bm{w} \sim \mathcal{N}(0, Q)$のノイズが乗っているものとする。また、ロボットは位置$\bm{b}_k \in \mathbb{R}^2$が既知のビーコンからの相対位置をセンサから$\bm{z}_k \in \mathbb{R}^2$として時々取得できて、その計測値には$\bm{n}\sim\mathcal{N}(0,R)$の誤差が乗るものとする。
 
 典型的なローカライズの問題であり、今回は拡張カルマンフィルタ（EKF: Extended Kalman filter）を用いることとする。
 
 #### リー群の誤差共分散行列
 
-まず、カルマンフィルタを適用するにあたっては、推定すべき状態量$T$の確率分布がガウス分布に近似できると仮定して、その誤差共分散行列を$P$と置く必要がある。しかしながら、$T$はリー群でありこのままではパラメータ数が過剰である。従って、$T$の期待値を$\bar{T}$としたときに$T$と$\bar{T}$の差をリー代数で表現したものに対して誤差共分散行列を定義する。つまり、$P=\mathbb{E}[(T\ominus\bar{T})(T\ominus\bar{T})^T]$と定義する。
+まず、カルマンフィルタを適用するにあたっては、推定すべき状態量$T$の確率分布がガウス分布に近似できると仮定して、その誤差共分散行列を$P$と置く必要がある。しかしながら、$T$はリー群でありこのままではパラメータ数が過剰である。また、リー群はベクトル空間ではなく和が定義されないため、$T$の期待値や差もそのままでは定義できない。そこで、真の状態$T$を、推定値（ノミナル状態）$\hat{T}$と、その接空間における誤差$\delta\bm{\xi}$を用いて$T = \hat{T} \oplus \delta\bm{\xi}$と表す。そして、$\delta\bm{\xi} \sim \mathcal{N}(\bm{0}, P)$と仮定し、この$\delta\bm{\xi}$の共分散行列を誤差共分散行列とする。つまり、$P=\mathbb{E}[\delta\bm{\xi}\,\delta\bm{\xi}^T]=\mathbb{E}[(T\ominus\hat{T})(T\ominus\hat{T})^T]$と定義する。
 
 #### 時間発展モデル
 
 時間更新モデルは、リー代数がリー群の速度を意味するということを思いだすと、$\bm{u}$そのものがリー代数（のベクトル表示）であることが分かり、時刻$\Delta\tau$あたり$\operatorname{Exp}(\bm{u}_i)$のポーズ変化が起きることになる。従って、時間発展モデルは以下の通りである。
 
 $$
-T_{k} = f(T_{k-1}, \bm{u}_k, \bm{w}_k) \triangleq T_{k-1} \oplus (\bm{u}_k + \bm{w}_k) \qquad (1)
+T_{k} = f(T_{k-1}, \bm{u}_k, \bm{w}_k) \triangleq T_{k-1} \oplus (\bm{u}_k + \bm{w}_k) \qquad (3)
 $$
 
 #### 観測モデル
@@ -1057,10 +1055,10 @@ $$
 観測モデルは簡単であり、ポーズ$T^{-1}$を用いて$\bm{b}_k$をポーズ$T$から見た相対位置に変換可能であることから、以下のようになる。
 
 $$
-\bm{z}_k = h(T) + \bm{n} \triangleq T^{-1} \cdot \bm{b}_k + \bm{n} = R^T (\bm{b}_k - \bm{t}) + \bm{n} \qquad (2)
+\bm{z}_k = h(T) + \bm{n} \triangleq T^{-1} \cdot \bm{b}_k + \bm{n} = R^T (\bm{b}_k - \bm{t}) + \bm{n} \qquad (4)
 $$
 
-ただし、ここで記載の簡略化のため$(\cdot)$は同時座標表現を経由せずに座標変換をする演算として定義している。
+ただし、ここで記載の簡略化のため$(\cdot)$は同次座標表現を経由せずに座標変換をする演算として定義している。
 
 #### 予測ステップ
 
@@ -1090,39 +1088,39 @@ $$
 \bm{x}_k = f(\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k)
 $$
 
-という非線形の状態方程式が与えられ、これを右辺の状態の周りで線形化すると、
+という非線形の状態方程式が与えられ、これを推定値$\hat{\bm{x}}_{k-1|k-1}$とノイズの平均$\bm{0}$の周りで線形化すると、
 
 $$
-\delta\bm{x}_k = \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k}  \delta\bm{x}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{w}_k} \delta\bm{w}_k
+\delta\bm{x}_k = \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}  \delta\bm{x}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta\bm{w}_k
 $$
 
 という摂動の関係が得られることから、線形カルマンフィルタの場合と比較して
 
 $$
 \begin{align*}
-F_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{0}}
+F_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}
 \\
-G_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{x}_{k-1}, \bm{u}_k, \bm{0}}
+G_k &\triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\hat{\bm{x}}_{k-1|k-1}, \bm{u}_k, \bm{0}}
 \end{align*}
 $$
 
-とすることで、線形カルマンフィルタと同じ更新則を用いて$P$を更新することができる。（なお、$\bm{w}$はホワイトノイズであるので、ヤコビ行列の引数の$\bm{w}_k$の実現値としては$\bm{0}$を代入する。）
+とすることで、線形カルマンフィルタと同じ更新則を用いて$P$を更新することができる。（なお、真の状態$\bm{x}_{k-1}$や$\bm{w}_k$の実現値は分からないため、それぞれの最良推定値の周りで線形化する。$\bm{w}$は平均$\bm{0}$のノイズであり、その最良推定値は$\bm{0}$であるので、ヤコビ行列の引数の$\bm{w}_k$には$\bm{0}$を代入する。）
 
-以上の拡張カルマンフィルタと同じ考え方で、我々は時間発展モデルである(1)式を線形化したい。しかしながら、(1)式の$f$はリー群の要素$T$を引数として取る関数であり、上記と全く同じ手法で$f$を$T$で微分すると前述したような過剰なパラメータが発生することになり都合が悪い。そこで、$T$の摂動をリー代数（のベクトル表示）である$\bm{\xi}$を用いて$T \oplus \delta \bm{\xi}$のようにして捉えて、**$T$の近傍におけるリー代数の世界で表現した摂動**を考える。すると、(1)式の$T$近傍でのリー代数における摂動は、
-
-$$
-\delta\bm{\xi}_{k+1} = \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{w}_k} \delta \bm{\xi}_{k-1} + \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{w}_k} \delta \bm{w}_k \qquad (\bm{\xi}_{k-1} \triangleq \operatorname{Log}(T_{k-1}))
-$$
-
-となる。この関係式を拡張カルマンフィルタに採用しよう。すると、リー代数$\xi$が$T$の$T$の周りで表現した誤差を表す状態量となり、
+以上の拡張カルマンフィルタと同じ考え方で、我々は時間発展モデルである(3)式を線形化したい。しかしながら、(3)式の$f$はリー群の要素$T$を引数として取る関数であり、上記と全く同じ手法で$f$を$T$で微分すると前述したような過剰なパラメータが発生することになり都合が悪い。そこで、真の状態を推定値$\hat{T}$の周りの摂動として、リー代数（のベクトル表示）である$\delta\bm{\xi}$を用いて$T = \hat{T} \oplus \delta \bm{\xi}$のようにして捉えて、**$\hat{T}$の近傍におけるリー代数の世界で表現した摂動**を考える。すると、(3)式の$\hat{T}$近傍でのリー代数における摂動は、
 
 $$
-P \leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}} \right)
+\delta\bm{\xi}_k = \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta \bm{\xi}_{k-1} + \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \delta \bm{w}_k
 $$
 
-という更新式が得られる。ここで注意したいのは$P$はもはや$T$そのものの誤差共分散行列ではなく、そのときの$T$の接空間におけるリー代数で表現された誤差共分散行列となっており、$T$の期待値を$\bar{T}$とすれば$P=\mathbb{E}[(T\ominus\bar{T})(T\ominus\bar{T})^T]$ということになる。普通のカルマンフィルタであれば、$P=\mathbb{E}[(\bm{x}-\bar{\bm{x}})(\bm{x}-\bar{\bm{x}})^T]$であり、$\ominus$を導入したことにより普通の場合とのアナロジーが取りやすくなっている。
+となる。この関係式を拡張カルマンフィルタに採用しよう。すると、リー代数$\delta\bm{\xi}$が$\hat{T}$の周りで表現した誤差を表す状態量となり、
 
-なお、このように元の状態量に対して偏微分を計算して線形化を施すのではなく、元の状態量の（ノミナル状態との）誤差を状態量と別に見なしてその周りで線形化を施すことでカルマンフィルタを構成するものを、「誤差状態カルマンフィルタ（ESKF: Error state Kalman filer）」ないしは「誤差状態拡張カルマンフィルタ（ES-EKF：Error state extended Kalman filter）」と呼ぶ。
+$$
+P \leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \right)
+$$
+
+という更新式が得られる。ここで注意したいのは$P$はもはや$T$そのものの誤差共分散行列ではなく、推定値$\hat{T}$の接空間におけるリー代数で表現された誤差$\delta\bm{\xi}$の共分散行列となっており、$P=\mathbb{E}[(T\ominus\hat{T})(T\ominus\hat{T})^T]$ということになる。普通のカルマンフィルタであれば、$P=\mathbb{E}[(\bm{x}-\hat{\bm{x}})(\bm{x}-\hat{\bm{x}})^T]$であり、$\ominus$を導入したことにより普通の場合とのアナロジーが取りやすくなっている。
+
+なお、このように元の状態量に対して偏微分を計算して線形化を施すのではなく、元の状態量のノミナル状態（推定値$\hat{T}$）との誤差$\delta\bm{\xi}$を状態量と別に見なし、ノミナル状態の周りで線形化を施すことでカルマンフィルタを構成するものを、「誤差状態カルマンフィルタ（ESKF: Error state Kalman filter）」ないしは「誤差状態拡張カルマンフィルタ（ES-EKF：Error state extended Kalman filter）」と呼ぶ。
 
 また、推定値$\hat{T}$そのものの時間更新は、時間発展モデルから
 
@@ -1138,7 +1136,7 @@ $$
 \begin{align*}
 \hat{T} &\leftarrow \hat{T} \oplus \bm{u}_i
 \\
-P &\leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{\partial f}{\partial \bm{w}}\right|_{\bm{\xi}_{k-1}, \bm{u}_k, \bm{0}} \right)
+P &\leftarrow FPF^T + GQG^T \quad \left( F \triangleq \left.\dfrac{D f}{D T}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}}, G \triangleq \left.\dfrac{D f}{D \bm{w}}\right|_{\hat{T}_{k-1|k-1}, \bm{u}_k, \bm{0}} \right)
 \end{align*}
 $$
 
@@ -1152,7 +1150,7 @@ $$
 $F$の具体的な形は
 
 $$
-F = \left.\dfrac{D f}{D T}\right|_{\bm{\xi}, \bm{u}, \bm{0}} = \left.\dfrac{D (T \oplus (\bm{u} + \bm{w}))}{D T}\right|_{\bm{\xi}, \bm{u}, \bm{0}} = \mathrm{Ad}_{\operatorname{Exp}(\bm{u})}^{-1}
+F = \left.\dfrac{D f}{D T}\right|_{\hat{T}, \bm{u}, \bm{0}} = \left.\dfrac{D (T \oplus (\bm{u} + \bm{w}))}{D T}\right|_{\hat{T}, \bm{u}, \bm{0}} = \mathrm{Ad}_{\operatorname{Exp}(\bm{u})}^{-1}
 $$
 
 であり、随伴行列$\mathrm{Ad}_T$は、$T = \begin{bmatrix}R&\bm{t}\\\bm{0}&1\end{bmatrix}$と置くと、
@@ -1166,7 +1164,7 @@ $$
 $G$の具体的な形は
 
 $$
-G = \dfrac{\partial f}{\partial \bm{u}} = \dfrac{\partial (T \oplus \bm{u})}{\partial \bm{u}} = J_r(\bm{u})
+G = \dfrac{D f}{D \bm{w}} = \dfrac{D (T \oplus (\bm{u} + \bm{w}))}{D \bm{w}} = J_r(\bm{u})
 $$
 
 であり、右ヤコビアン$J_r$は、
@@ -1192,7 +1190,7 @@ $$
 J_r(\bm{\tau}) \approx
 \begin{bmatrix}
 1 & \theta/2 & \theta\rho_1/6 - \rho_2/2 \\
--\theta/2 & 1 & \rho_1/2 + \theta\rho_1/6 \\
+-\theta/2 & 1 & \rho_1/2 + \theta\rho_2/6 \\
 0 & 0 & 1
 \end{bmatrix} \quad (\theta \approx 0)
 $$
@@ -1237,30 +1235,30 @@ $$
 \bm{z}_k = h(\bm{x}_k) + \bm{v}_k
 $$
 
-という非線形の観測方程式が与えられ、右辺の状態で微分を取ることで、
+という非線形の観測方程式が与えられ、予測値$\hat{\bm{x}}_{k|k-1}$の周りで微分を取ることで、
 
 $$
-\delta {z}_k = \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\bm{x}_k, \bm{v}_k} \delta \bm{x}_{k} + \delta \bm{v}_{k}
+\delta {z}_k = \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k|k-1}, \bm{0}} \delta \bm{x}_{k} + \delta \bm{v}_{k}
 $$
 
 という摂動の関係が得られることから、線形カルマンフィルタの場合と比較して
 
 $$
-H_k \triangleq \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\bm{x}_k, \bm{0}}
+H_k \triangleq \left.\dfrac{\partial h}{\partial \bm{x}}\right|_{\hat{\bm{x}}_{k|k-1}, \bm{0}}
 $$
 
 とすることで、同じ更新則が適用できるのであった。
 
-以上の拡張カルマンフィルタと同じ考え方で、我々は観測モデルである(2)式を線形化したい。しかしながら、(2)式の$h$はリー群の要素$T$を引数として取る関数であり、時間発展モデルの線形化のときと同じ問題に直面する。そこで先ほどと同様にして、(2)式の$T$の近傍でのリー代数における摂動を考えると、
+以上の拡張カルマンフィルタと同じ考え方で、我々は観測モデルである(4)式を線形化したい。しかしながら、(4)式の$h$はリー群の要素$T$を引数として取る関数であり、時間発展モデルの線形化のときと同じ問題に直面する。そこで先ほどと同様にして、真の状態を$T = \hat{T}_{k|k-1} \oplus \delta\bm{\xi}_k$と表し、(4)式の予測値$\hat{T}_{k|k-1}$の近傍でのリー代数における摂動を考えると、
 
 $$
-\delta z_k = \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \delta \xi + \delta \bm{n}
+\delta z_k = \left.\dfrac{D h}{D T}\right|_{\hat{T}_{k|k-1}} \delta \bm{\xi}_k + \delta \bm{n}
 $$
 
 となり、この表現において拡張カルマンフィルタと同様の手続きを踏むことが可能となり、
 
 $$
-S = R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\bm{\xi}} \right)
+S = R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\hat{T}_{k|k-1}} \right)
 $$
 
 のようにして、観測残差の共分散$S$が計算できるようになる。
@@ -1273,15 +1271,19 @@ $$
 
 となる。
 
+なお、厳密には、更新後の$P$は更新前の$\hat{T}$の接空間で表現された共分散のままである。これを更新後の$\hat{T} \oplus K\bm{e}$の接空間に移すには、リセットのヤコビ行列$J_r(K\bm{e})$を用いて$P \leftarrow J_r(K\bm{e}) P J_r(K\bm{e})^T$とする必要がある[^eskf-reset]。ただし、$K\bm{e}$は小さいため$J_r(K\bm{e}) \approx I$と近似されることが多く、本稿でもこの近似に従う。
+
+[^eskf-reset]: Joan Solà, "[Quaternion kinematics for the error-state Kalman filter](https://arxiv.org/abs/1711.02508)"の6.3節（ESKF reset）を参照。更新後の誤差は$\delta\bm{\xi}^+ = \operatorname{Log}(\operatorname{Exp}(K\bm{e})^{-1}\operatorname{Exp}(K\bm{e} + \delta\bm{\xi})) \approx J_r(K\bm{e})\,\delta\bm{\xi}$となることから導かれる。
+
 以上をまとめると、更新ステップは下記のようになる[^diff-with-sola]。
 
-[^diff-with-sola]: [Joan Sola, et al.](https://arxiv.org/abs/1812.01537)では、$P \leftarrow P - KSK^{-1}$の形の更新則を用いているが、これらは非自明なものの等価である。
+[^diff-with-sola]: [Joan Sola, et al.](https://arxiv.org/abs/1812.01537)では、$P \leftarrow P - KSK^T$の形の更新則を用いているが、$KSK^T = PH^TS^{-1}HP = KHP$よりこれらは等価である。
 
 $$
 \begin{align*}
 \bm{e} &= \bm{z}_k - \hat{T}^{-1} \cdot \bm{b}_k
 \\
-S &= R + HPH^T \quad \left( H \triangleq \dfrac{D h}{D T}\right)
+S &= R + HPH^T \quad \left( H \triangleq \left.\dfrac{D h}{D T}\right|_{\hat{T}}\right)
 \\
 K &= P H^T S^{-1}
 \\
@@ -1298,7 +1300,7 @@ $$
 $H$の具体的な形は
 
 $$
-H = \dfrac{D h}{D T} = \dfrac{D (T^{-1} \cdot \bm{b}_k)}{D T} =
+H = \left.\dfrac{D h}{D T}\right|_{\hat{T}} = \left.\dfrac{D (T^{-1} \cdot \bm{b}_k)}{D T}\right|_{\hat{T}} =
 -
 \begin{bmatrix}
 I & R^T [1]_\wedge (\bm{b}_k - \bm{t})
@@ -1322,7 +1324,7 @@ ESEKFについては、実行直後のまだ不確かさが大きなときに最
 ![](/images/lie-group-for-robotics/esekf_1.png =500x)
 *リー代数空間での正規分布の誤差を仮定しているESEKF(紫色)については、xy座標に変換するとバナナ状の形状に確率分布が出てくる*
 
-今回のパラメータ設定においては、このような強い非線形性は薄まっていくため、最終的にはどの手法でも下図のように似たような楕円上の確率分布に収まっていくことが確認できる。
+今回のパラメータ設定においては、このような強い非線形性は薄まっていくため、最終的にはどの手法でも下図のように似たような楕円状の確率分布に収まっていくことが確認できる。
 
 ![](/images/lie-group-for-robotics/esekf_2.png =500x)
 *収束していくと、各手法のどれでも似たような楕円分布形状に落ち着いていく*
@@ -1333,7 +1335,7 @@ ESEKFについては、実行直後のまだ不確かさが大きなときに最
     - Joan Solà, Jeremie Deray, Dinesh Atchuthan, 2021, "[A micro Lie theory for state estimation in robotics](https://arxiv.org/pdf/1812.01537)"
     - J. Deray and J. Solà, 2024, "[Lie theory cheat sheet](https://github.com/artivis/manif/blob/devel/paper/Lie_theory_cheat_sheet.pdf)"
     - Joan Solà, 2021, "[Lie theory for the roboticist](https://www.youtube.com/watch?v=gy8U7S4LWzs)"
-    - Joan Solà, 2020, "[Lie thery for the Roboticist](https://www.youtube.com/watch?v=QR1p0Rabuww)" 
+    - Joan Solà, 2020, "[Lie theory for the Roboticist](https://www.youtube.com/watch?v=QR1p0Rabuww)" 
     - Joan Solà, 2017, "[Quaternion kinematics for the error-state Kalman filter](https://arxiv.org/abs/1711.02508)" 
       - 上記は以下のように邦訳が公開されている。
         https://www.flight.t.u-tokyo.ac.jp/?p=800
@@ -1345,4 +1347,4 @@ ESEKFについては、実行直後のまだ不確かさが大きなときに最
 
 4. 瀬戸将志、2016年、『[拡張現実感のためのSE3補間を用いたローリングシャッターカメラの位置・姿勢推定](https://naist.repo.nii.ac.jp/record/8177/files/R012616.pdf)』
 
-5. Andrew W. Long, Kevin C. Wolfe, Michael J. Mashner, Gregory S. Chirikjian, 2013, "[The Banana Distribution Is Gaussian: A Localization Study with Exponential Coordinates](https://www.roboticsproceedings.org/rss08/p34.pdf)"
+5. Andrew W. Long, Kevin C. Wolfe, Michael J. Mashner, Gregory S. Chirikjian, 2012, "[The Banana Distribution Is Gaussian: A Localization Study with Exponential Coordinates](https://www.roboticsproceedings.org/rss08/p34.pdf)"
